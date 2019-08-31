@@ -42,9 +42,9 @@
                     </view>
                     <navigationItem key="navigationItem" id="Iwu-xM-3Fb">
                         <nil key="title"/>
-                        <barButtonItem key="leftBarButtonItem" title="Subreddit" image="menu" style="done" id="Uva-wM-KHm">
+                        <barButtonItem key="leftBarButtonItem" title="Subreddit" image="menu" style="done" id="Uva-wM-KHm" userLabel="Menu">
                             <connections>
-                                <action selector="didTapSubreddit:" destination="BYZ-38-t0r" id="fDD-Nw-miI"/>
+                                <action selector="didTapMenu:" destination="BYZ-38-t0r" id="26y-GV-uqH"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" title="Modifier" image="filter" style="done" id="gCd-BC-4Su">

@@ -89,6 +89,14 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		789AB8682319F1D1004F7B35 /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				78E4FC38230CC4E20077DDEA /* ViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
 		78E4FC2A230CC4E20077DDEA = {
 			isa = PBXGroup;
 			children = (
@@ -110,11 +118,11 @@
 		78E4FC35230CC4E20077DDEA /* Scrollolol */ = {
 			isa = PBXGroup;
 			children = (
-				78E4FC38230CC4E20077DDEA /* ViewController.swift */,
-				78E4FC3A230CC4E20077DDEA /* Main.storyboard */,
 				785C12CD2313352D00043585 /* Models */,
-				78FF83EE23119EA3004854F4 /* Cells */,
+				789AB8682319F1D1004F7B35 /* ViewControllers */,
 				78336CA32312F14A00E134E7 /* Views */,
+				78FF83EE23119EA3004854F4 /* Cells */,
+				78E4FC3A230CC4E20077DDEA /* Main.storyboard */,
 				785C12CC2313351D00043585 /* Services */,
 				78E4FC4C230CD0F40077DDEA /* Template */,
 			);

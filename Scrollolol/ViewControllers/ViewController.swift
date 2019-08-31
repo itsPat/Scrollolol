@@ -11,12 +11,12 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
+    let refreshControl = UIRefreshControl()
     var posts = [Post]()
-    var postIDs9GAG = [String:Bool]()
+    var previouslyFetchedPostURLs = [String:Bool]()
     var blurView: UIVisualEffectView?
     var fullScreenImageView: UIImageView?
     var currentModifier: SubredditModifier?
-    var currentSubreddit: Subreddit?
     var finalPage = false
 
     override func viewDidLoad() {
@@ -27,11 +27,19 @@ class ViewController: UIViewController {
         button.addTarget(self, action: #selector(didTapMonkey(_:)), for: .touchUpInside)
         navigationItem.titleView = button
         toggleOverlayView(active: true)
+        refreshControl.addTarget(self, action:  #selector(handleRefresh), for: .valueChanged)
+        tableView.backgroundView = refreshControl
         tableView.scrollsToTop = true
         tableView.register(PostCell.getNib(), forCellReuseIdentifier: PostCell.reuseIdentifier())
         tableView.register(LoadingCell.getNib(), forCellReuseIdentifier: LoadingCell.reuseIdentifier())
-        fetchPosts(subreddit: .dankmemes, modifier: .hot, after: false)
+        fetchPosts(modifier: .hot, after: false)
         NetworkManager.shared.fetch9GAGPosts(delegate: self)
+    }
+    
+    @objc func handleRefresh() {
+        fetchPosts(modifier: currentModifier ?? .hot, after: false)
+        tableView.reloadData()
+        refreshControl.endRefreshing()
     }
     
     @objc func didTapMonkey(_ sender: UIButton) {
@@ -39,23 +47,7 @@ class ViewController: UIViewController {
         tableView.scrollToRow(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
     }
     
-    @IBAction func didTapSubreddit(_ sender: UIBarButtonItem) {
-        let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        
-        for subreddit in Subreddit.allCases {
-            let action = UIAlertAction(title: subreddit.rawValue.capitalized, style: .default) { (_) in
-                self.fetchPosts(subreddit: subreddit, modifier: self.currentModifier ?? .hot, after: false)
-                self.currentSubreddit = subreddit
-            }
-            actionSheet.addAction(action)
-        }
-        
-        let cancel = UIAlertAction(title: "Cancel", style: .cancel)
-        actionSheet.addAction(cancel)
-        
-        definesPresentationContext = true
-        actionSheet.popoverPresentationController?.barButtonItem = sender
-        present(actionSheet, animated: true, completion: nil)
+    @IBAction func didTapMenu(_ sender: UIBarButtonItem) {
     }
     
     @IBAction func didTapFetch(_ sender: UIBarButtonItem) {
@@ -63,7 +55,7 @@ class ViewController: UIViewController {
         
         for modifier in SubredditModifier.allCases {
             let action = UIAlertAction(title: modifier.rawValue.capitalized, style: .default) { (_) in
-                self.fetchPosts(subreddit: self.currentSubreddit ?? .dankmemes, modifier: modifier, after: false)
+                self.fetchPosts(modifier: modifier, after: false)
                 self.currentModifier = modifier
             }
             actionSheet.addAction(action)
@@ -95,15 +87,26 @@ class ViewController: UIViewController {
         }
     }
     
-    func fetchPosts(subreddit: Subreddit, modifier: SubredditModifier, after: Bool) {
+    func fetchPosts(modifier: SubredditModifier, after: Bool) {
         NetworkManager.shared.delegate = self
-        NetworkManager.shared.fetchPosts(subreddit: subreddit, modifier: modifier, after: after)
+        NetworkManager.shared.fetchPosts(modifier: modifier, after: after)
     }
     
     func openImageInFullScreen(indexPath: IndexPath) {
         
         guard let cell = tableView.cellForRow(at: indexPath) as? PostCell else { return }
         let post = posts[indexPath.section]
+        
+        var image = UIImage()
+        
+        switch post.mediaType {
+        case .gif:
+            image = UIImage.gifImageWithData(post.imageData ?? Data()) ?? UIImage()
+        default:
+            image = UIImage(data: post.imageData ?? Data()) ?? UIImage()
+        }
+        
+        
         
         if !UIAccessibility.isReduceTransparencyEnabled {
             let blurEffect = UIBlurEffect(style: .dark)
@@ -126,7 +129,7 @@ class ViewController: UIViewController {
         fullScreenImageView = UIImageView(frame: convertedImageViewRect)
         fullScreenImageView?.contentMode = .scaleAspectFit
         fullScreenImageView?.backgroundColor = UIAccessibility.isReduceTransparencyEnabled ? .black : .clear
-        fullScreenImageView?.image = post.image
+        fullScreenImageView?.image = image
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         fullScreenImageView?.addGestureRecognizer(panGesture)
         fullScreenImageView?.isUserInteractionEnabled = true
@@ -200,7 +203,7 @@ extension ViewController: UITableViewDataSource {
         guard !posts.isEmpty else { return clearCell }
         if indexPath.section == posts.count, !finalPage {
             // Present Loading Cell until new posts are downloaded.
-            fetchPosts(subreddit: currentSubreddit ?? .dankmemes, modifier: currentModifier ?? .hot, after: true)
+            fetchPosts(modifier: currentModifier ?? .hot, after: true)
             let cell = tableView.dequeueReusableCell(withIdentifier: LoadingCell.reuseIdentifier()) as! LoadingCell
             return cell
         } else {
@@ -233,9 +236,12 @@ extension ViewController: NetworkManagerDelegate {
     
     func didFinishFetchingReddit(post: Post) {
         DispatchQueue.main.async {
-            self.toggleOverlayView(active: false)
-            self.posts.append(post)
-            self.tableView.insertSections(IndexSet(integer: self.posts.count - 1), with: .none)
+            if self.previouslyFetchedPostURLs[post.postURL] == nil {
+                self.toggleOverlayView(active: false)
+                self.posts.append(post)
+                self.previouslyFetchedPostURLs[post.postURL] = true
+                self.tableView.insertSections(IndexSet(integer: self.posts.count - 1), with: .none)
+            }
         }
     }
 }
@@ -245,10 +251,10 @@ extension ViewController: XMLManagerDelegate {
     func didFinishFetching9GAG(post: Post) {
         DispatchQueue.main.async {
             // Make sure the same post isn't added twice as the RSS feed return multiple instances of a post.
-            if self.postIDs9GAG[post.postURL] == nil {
+            if self.previouslyFetchedPostURLs[post.postURL] == nil {
                 self.toggleOverlayView(active: false)
                 self.posts.append(post)
-                self.postIDs9GAG[post.postURL] = true
+                self.previouslyFetchedPostURLs[post.postURL] = true
                 self.tableView.insertSections(IndexSet(integer: self.posts.count - 1), with: .none)
             }
         }

@@ -40,7 +40,12 @@ class PostCell: UITableViewCell {
         sourceButton.setImage(post.credit == .reddit ? #imageLiteral(resourceName: "reddit") : #imageLiteral(resourceName: "9gag"), for: .normal)
         postTitle.text = post.title
         postCreditDescription.text = post.creditDescription
-        postImageView.image = post.image
+        switch post.mediaType {
+        case .gif:
+            postImageView.image = UIImage.gifImageWithData(post.imageData ?? Data())
+        default:
+            postImageView.image = UIImage(data: post.imageData ?? Data())
+        }
     }
     
     @IBAction func didTapSource(_ sender: Any) {
@@ -50,7 +55,7 @@ class PostCell: UITableViewCell {
     
     @IBAction func didTapShare(_ sender: Any) {
         guard let post = post else { return }
-        guard let image = post.image else { return }
+        guard let image = UIImage(data: post.imageData ?? Data()) else { return }
         let activityItems: [Any] = [image, "Check out this post I found on Meme Monkey!"]
         let avc = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         delegate?.present(avc, animated: true, completion: nil)

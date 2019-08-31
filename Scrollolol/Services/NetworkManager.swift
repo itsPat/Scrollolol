@@ -9,7 +9,7 @@
 import UIKit
 
 enum Subreddit: String, CaseIterable {
-    case dankmemes, memes, wholesomememes, terriblefacebookmemes, HistoryMemes, MemeEconomy, PoliticalHumor, funny, dank_meme
+    case dankmemes, memes, wholesomememes, MemeEconomy
 }
 
 enum SubredditModifier: String, CaseIterable {
@@ -27,58 +27,69 @@ class NetworkManager: NSObject {
     static let shared = NetworkManager()
     var isFetchingPosts = false
     var delegate: NetworkManagerDelegate?
-    var lastRedditPostFullName = ""
+    var afterPostFullNames = [String:String]()
     
     
     
-    func fetchPosts(subreddit: Subreddit, modifier: SubredditModifier, after: Bool) {
+    func fetchPosts(modifier: SubredditModifier, after: Bool) {
         
         if !isFetchingPosts {
             isFetchingPosts = true
-            var urlString = "https://api.reddit.com/r/\(subreddit.rawValue)"
-            urlString += "/\(modifier.rawValue)"
-            urlString += "/.json?"
-            urlString += after ? "&after=\(lastRedditPostFullName)" : ""
-            
-            print("FETCHING NEW DATA WITH URL: \(urlString)")
-            
-            guard let url = URL(string: urlString) else { return }
-            
-            let task = URLSession.shared.dataTask(with: url) { (data, res, err) in
-                if let err = err {
-                    self.delegate?.fetchRedditPostDidFail()
-                    print("Failed to get data from \(url) with error: \(err)")
-                }
+            if after {
+                afterPostFullNames.removeAll()
+            }
+            for subreddit in Subreddit.allCases {
+                var urlString = "https://api.reddit.com/r/\(subreddit.rawValue)"
+                urlString += "/\(modifier.rawValue)"
+                urlString += "/.json?"
+                urlString += after ? "&after=\(afterPostFullNames[subreddit.rawValue] ?? "")" : ""
+//                urlString += "&limit=5"
                 
-                guard let data = data else { return }
-                guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String:Any] else { return }
-                guard let jsonData = json["data"] as? [String:Any] else { return }
-                guard let postsJSON = jsonData["children"] as? [[String:Any]] else { return }
+                print("✅FETCHING NEW DATA WITH URL: \(urlString)✅")
                 
-                for postJSON in postsJSON {
-                    guard let postData = postJSON["data"] as? [String:Any] else { return }
-                    guard let title = postData["title"] as? String else { return }
-                    guard let imageURL = postData["url"] as? String else { return }
-                    guard let permalink = postData["permalink"] as? String else { return }
-                    guard let postID = postData["id"] as? String else { return }
-                    self.lastRedditPostFullName = "t3_\(postID)"
-                    if imageURL.contains(".png") || imageURL.contains(".jpg") {
-                        let postURL = "https://www.reddit.com\(permalink)"
-                        self.fetchImageFor(post: Post(credit: .reddit, creditDescription: "r/\(subreddit.rawValue)", postURL: postURL, title: title, imageURL: imageURL), completion: { (result) in
-                            switch result {
-                            case .success(let post):
-                                print("⭐️DID FETCH POST FROM \(post.credit.rawValue)⭐️")
-                                self.delegate?.didFinishFetchingReddit(post: post)
-                            case .failure(let err):
-                                self.delegate?.fetchRedditPostDidFail()
-                                print("Did fail to fetch image with \(err.localizedDescription)")
+                guard let url = URL(string: urlString) else { return }
+                
+                let task = URLSession.shared.dataTask(with: url) { (data, res, err) in
+                    if let err = err {
+                        self.delegate?.fetchRedditPostDidFail()
+                        print("Failed to get data from \(url) with error: \(err)")
+                    }
+                    
+                    guard let data = data else { return }
+                    guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String:Any] else { return }
+                    guard let jsonData = json["data"] as? [String:Any] else { return }
+                    guard let postsJSON = jsonData["children"] as? [[String:Any]] else { return }
+                    
+                    for postJSON in postsJSON {
+                        guard let postData = postJSON["data"] as? [String:Any] else { return }
+                        guard let title = postData["title"] as? String else { return }
+                        guard let imageURL = postData["url"] as? String else { return }
+                        guard let permalink = postData["permalink"] as? String else { return }
+                        guard let postID = postData["id"] as? String else { return }
+                        self.afterPostFullNames[subreddit.rawValue] = "t3_\(postID)"
+                        
+                        if imageURL.contains(".png") || imageURL.contains(".jpg") || imageURL.contains(".gif") {
+                            
+                            let mediaTypeString = String(imageURL.suffix(3))
+                            if let mediaType = MediaType(rawValue: mediaTypeString) {
+                                let postURL = "https://www.reddit.com\(permalink)"
+                                self.fetchImageFor(post: Post(credit: .reddit, creditDescription: "r/\(subreddit.rawValue)", postURL: postURL, title: title, imageURL: imageURL, mediaType: mediaType), completion: { (result) in
+                                    switch result {
+                                    case .success(let post):
+                                        print("⭐️DID FETCH POST FROM \(post.credit.rawValue)⭐️")
+                                        self.delegate?.didFinishFetchingReddit(post: post)
+                                    case .failure(let err):
+                                        self.delegate?.fetchRedditPostDidFail()
+                                        print("Did fail to fetch image with \(err.localizedDescription)")
+                                    }
+                                })
                             }
-                        })
+                        }
                     }
                 }
-                self.isFetchingPosts = false
+                task.resume()
             }
-            task.resume()
+            self.isFetchingPosts = false
         }
     }
     
@@ -96,7 +107,7 @@ class NetworkManager: NSObject {
                 if let location = location {
                     do {
                         let data = try Data(contentsOf: location)
-                        post.image = UIImage(data: data)
+                        post.imageData = data
                         completion(.success(post))
                     } catch {
                         completion(.failure(error))
@@ -109,10 +120,8 @@ class NetworkManager: NSObject {
     }
     
     func fetch9GAGPosts(delegate: XMLManagerDelegate) {
-        //https://www.9gag-rss-feed.ovh/rss/9GAG_Video_-_Hot.atom
         let paths = [
-            "https://www.9gag-rss-feed.ovh/rss/9GAG_Meme_-_Hot.atom",
-            "https://www.9gag-rss-feed.ovh/rss/9GAG_Meme_-_Fresh.atom"
+            "https://www.9gag-rss-feed.ovh/rss/9GAG_Meme_-_Hot.atom"
         ]
         
         for path in paths {
