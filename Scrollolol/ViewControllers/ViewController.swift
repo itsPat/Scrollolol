@@ -13,7 +13,6 @@ class ViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     let refreshControl = UIRefreshControl()
     var posts = [Post]()
-    var previouslyFetchedPostURLs = [String:Bool]()
     var blurView: UIVisualEffectView?
     var fullScreenImageView: UIImageView?
     var currentModifier: SubredditModifier?
@@ -22,9 +21,9 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         let button = UIButton(type: .custom)
-        button.setImage(#imageLiteral(resourceName: "orangeMonkey"), for: .normal)
+        button.setImage(UIImage(named: "starSmall"), for: .normal)
         button.imageView?.contentMode = .scaleAspectFit
-        button.addTarget(self, action: #selector(didTapMonkey(_:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTapStar(_:)), for: .touchUpInside)
         navigationItem.titleView = button
         toggleOverlayView(active: true)
         refreshControl.addTarget(self, action:  #selector(handleRefresh), for: .valueChanged)
@@ -36,13 +35,19 @@ class ViewController: UIViewController {
         NetworkManager.shared.fetch9GAGPosts(delegate: self)
     }
     
+    func fetchPosts(modifier: SubredditModifier, after: Bool) {
+        NetworkManager.shared.delegate = self
+        NetworkManager.shared.fetchPosts(modifier: modifier, after: after)
+    }
+    
+    // MARK: Actions
     @objc func handleRefresh() {
         fetchPosts(modifier: currentModifier ?? .hot, after: false)
         tableView.reloadData()
         refreshControl.endRefreshing()
     }
     
-    @objc func didTapMonkey(_ sender: UIButton) {
+    @objc func didTapStar(_ sender: UIButton) {
         navigationController?.setNavigationBarHidden(false, animated: true)
         tableView.scrollToRow(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
     }
@@ -69,6 +74,39 @@ class ViewController: UIViewController {
         present(actionSheet, animated: true, completion: nil)
     }
     
+    @IBAction func handlePan(_ sender: UIPanGestureRecognizer) {
+        let translation = sender.translation(in: self.view)
+        guard let fullScreenImageView = self.fullScreenImageView else { return }
+        switch sender.state {
+        case .changed:
+            let angleMultiplier = (fullScreenImageView.center.x - view.center.x) / (view.frame.maxX / 2)
+            let angle: CGFloat = (10.0 * .pi / 180) * angleMultiplier
+            fullScreenImageView.transform = CGAffineTransform(rotationAngle: angle)
+            fullScreenImageView.center = CGPoint(x: self.view.center.x + translation.x, y: self.view.center.y + translation.y)
+        case .ended:
+            let distanceFromCenterX = (fullScreenImageView.center.x - view.center.x) / view.frame.maxX
+            let distanceFromCenterY = (fullScreenImageView.center.y - view.center.y) / view.frame.maxY
+            if abs(distanceFromCenterX) > 0.1 || abs(distanceFromCenterY) > 0.1 {
+                UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveEaseInOut, animations: {
+                    self.navigationController?.setNavigationBarHidden(false, animated: true)
+                    fullScreenImageView.center = fullScreenImageView.center.getPointIn(direction: translation, multiplier: 3.0)
+                    fullScreenImageView.alpha = 0.0
+                    self.blurView?.alpha = 0.0
+                }) { (_) in
+                    self.fullScreenImageView?.removeFromSuperview()
+                    self.blurView?.removeFromSuperview()
+                }
+            } else {
+                UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveLinear, animations: {
+                    fullScreenImageView.center = CGPoint(x: self.view.center.x, y: self.view.center.y)
+                    fullScreenImageView.transform = CGAffineTransform(rotationAngle: 0)
+                }, completion: nil)
+            }
+        default:
+            break
+        }
+    }
+    
     
     
     func toggleOverlayView(active: Bool) {
@@ -87,26 +125,12 @@ class ViewController: UIViewController {
         }
     }
     
-    func fetchPosts(modifier: SubredditModifier, after: Bool) {
-        NetworkManager.shared.delegate = self
-        NetworkManager.shared.fetchPosts(modifier: modifier, after: after)
-    }
-    
     func openImageInFullScreen(indexPath: IndexPath) {
         
         guard let cell = tableView.cellForRow(at: indexPath) as? PostCell else { return }
         let post = posts[indexPath.section]
         
-        var image = UIImage()
-        
-        switch post.mediaType {
-        case .gif:
-            image = UIImage.gifImageWithData(post.imageData ?? Data()) ?? UIImage()
-        default:
-            image = UIImage(data: post.imageData ?? Data()) ?? UIImage()
-        }
-        
-        
+        guard let image = PhotoManager.shared.loadMediaFor(post: post) else { return }
         
         if !UIAccessibility.isReduceTransparencyEnabled {
             let blurEffect = UIBlurEffect(style: .dark)
@@ -144,40 +168,7 @@ class ViewController: UIViewController {
             self.fullScreenImageView?.constrainToEdgesOf(superview: self.view, padding: self.view.safeAreaInsets)
         }
     }
-
-    @IBAction func handlePan(_ sender: UIPanGestureRecognizer) {
-        let translation = sender.translation(in: self.view)
-        guard let fullScreenImageView = self.fullScreenImageView else { return }
-        switch sender.state {
-        case .changed:
-            let angleMultiplier = (fullScreenImageView.center.x - view.center.x) / (view.frame.maxX / 2)
-            let angle: CGFloat = (10.0 * .pi / 180) * angleMultiplier
-            fullScreenImageView.transform = CGAffineTransform(rotationAngle: angle)
-            fullScreenImageView.center = CGPoint(x: self.view.center.x + translation.x, y: self.view.center.y + translation.y)
-        case .ended:
-            let distanceFromCenterX = (fullScreenImageView.center.x - view.center.x) / view.frame.maxX
-            let distanceFromCenterY = (fullScreenImageView.center.y - view.center.y) / view.frame.maxY
-            if abs(distanceFromCenterX) > 0.1 || abs(distanceFromCenterY) > 0.1 {
-                UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveEaseInOut, animations: {
-                    self.navigationController?.setNavigationBarHidden(false, animated: true)
-                    fullScreenImageView.center = fullScreenImageView.center.getPointIn(direction: translation, multiplier: 3.0)
-                    fullScreenImageView.alpha = 0.0
-                    self.blurView?.alpha = 0.0
-                }) { (_) in
-                    self.fullScreenImageView?.removeFromSuperview()
-                    self.blurView?.removeFromSuperview()
-                }
-            } else {
-                UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.5, initialSpringVelocity: 0.5, options: .curveLinear, animations: {
-                    fullScreenImageView.center = CGPoint(x: self.view.center.x, y: self.view.center.y)
-                    fullScreenImageView.transform = CGAffineTransform(rotationAngle: 0)
-                }, completion: nil)
-            }
-        default:
-            break
-        }
-    }
-
+    
 }
 
 extension ViewController: UITableViewDataSource {
@@ -193,7 +184,14 @@ extension ViewController: UITableViewDataSource {
         guard !posts.isEmpty else { return 100.0 }
         guard indexPath.section != posts.count else { return 100.0 }
         guard let ratio = posts[indexPath.section].getImageAspectRatio() else { return 100.0 }
-        return (view.frame.width / ratio) + 100.0 > 600.0 ? 600.0 : (view.frame.width / ratio) + 100.0
+        return (view.frame.width / ratio) + 108.25
+    }
+    
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        guard !posts.isEmpty else { return 100.0 }
+        guard indexPath.section != posts.count else { return 100.0 }
+        guard let ratio = posts[indexPath.section].getImageAspectRatio() else { return 100.0 }
+        return (view.frame.width / ratio) + 108.25
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -213,7 +211,16 @@ extension ViewController: UITableViewDataSource {
             cell.post = post
             cell.delegate = self
             cell.updateCell()
+            cell.layoutIfNeeded()
             return cell
+        }
+    }
+    
+    func insertPost(post: Post) {
+        DispatchQueue.main.async {
+            self.toggleOverlayView(active: false)
+            self.posts.append(post)
+            self.tableView.insertSections(IndexSet(integer: self.posts.count - 1), with: .none) 
         }
     }
 }
@@ -235,31 +242,17 @@ extension ViewController: NetworkManagerDelegate {
     }
     
     func didFinishFetchingReddit(post: Post) {
-        DispatchQueue.main.async {
-            if self.previouslyFetchedPostURLs[post.postURL] == nil {
-                self.toggleOverlayView(active: false)
-                self.posts.append(post)
-                self.previouslyFetchedPostURLs[post.postURL] = true
-                self.tableView.insertSections(IndexSet(integer: self.posts.count - 1), with: .none)
-            }
-        }
+        insertPost(post: post)
     }
 }
 
 extension ViewController: XMLManagerDelegate {
-    
     func didFinishFetching9GAG(post: Post) {
-        DispatchQueue.main.async {
-            // Make sure the same post isn't added twice as the RSS feed return multiple instances of a post.
-            if self.previouslyFetchedPostURLs[post.postURL] == nil {
-                self.toggleOverlayView(active: false)
-                self.posts.append(post)
-                self.previouslyFetchedPostURLs[post.postURL] = true
-                self.tableView.insertSections(IndexSet(integer: self.posts.count - 1), with: .none)
-            }
-        }
+        insertPost(post: post)
     }
 }
+
+
 
 extension ViewController: PostCellDelegate { }
 

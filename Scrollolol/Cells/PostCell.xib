@@ -12,11 +12,11 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" rowHeight="290" id="tm7-gB-fCb" customClass="PostCell" customModule="Scrollolol" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="417" height="290"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" rowHeight="399" id="tm7-gB-fCb" customClass="PostCell" customModule="Scrollolol" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="417" height="399"/>
             <autoresizingMask key="autoresizingMask"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="tm7-gB-fCb" id="bJY-ha-tCj">
-                <rect key="frame" x="0.0" y="0.0" width="417" height="289.5"/>
+                <rect key="frame" x="0.0" y="0.0" width="417" height="398.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="K5B-p1-jdd">
@@ -39,16 +39,16 @@
                                 </connections>
                             </button>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="qrJ-0N-GlE">
-                                <rect key="frame" x="48" y="0.0" width="305" height="40"/>
+                                <rect key="frame" x="48" y="0.0" width="353" height="40"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lh4-XE-H4A">
-                                        <rect key="frame" x="0.0" y="0.0" width="305" height="20"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="353" height="20"/>
                                         <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="25P-4o-lvF">
-                                        <rect key="frame" x="0.0" y="20" width="305" height="20"/>
+                                        <rect key="frame" x="0.0" y="20" width="353" height="20"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                         <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
@@ -59,63 +59,94 @@
                                     <constraint firstItem="25P-4o-lvF" firstAttribute="width" secondItem="qrJ-0N-GlE" secondAttribute="width" id="K4L-5D-EIt"/>
                                 </constraints>
                             </stackView>
-                            <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YxX-HD-wVe">
-                                <rect key="frame" x="361" y="0.0" width="40" height="40"/>
-                                <color key="tintColor" red="0.92941176469999998" green="0.45882352939999999" blue="0.2784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <state key="normal" image="shareOrange"/>
-                                <connections>
-                                    <action selector="didTapShare:" destination="tm7-gB-fCb" eventType="touchUpInside" id="phO-HX-sMu"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="qrJ-0N-GlE" firstAttribute="height" secondItem="K5B-p1-jdd" secondAttribute="height" id="Cp0-xg-UqR"/>
                             <constraint firstAttribute="height" constant="40" id="YNL-pm-jEE"/>
-                            <constraint firstItem="YxX-HD-wVe" firstAttribute="width" secondItem="tEA-PQ-Ap0" secondAttribute="width" id="qrj-BD-ilr"/>
                         </constraints>
                     </stackView>
                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="qgi-EZ-ojr">
-                        <rect key="frame" x="0.0" y="52" width="417" height="219.5"/>
+                        <rect key="frame" x="0.0" y="56" width="417" height="302.5"/>
                     </imageView>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="74u-S6-H5Q" userLabel="bottomSeperator">
-                        <rect key="frame" x="0.0" y="279.5" width="417" height="10"/>
-                        <color key="backgroundColor" red="0.12941176469999999" green="0.12941176469999999" blue="0.14117647059999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" barStyle="black" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="36v-fD-Tsi">
+                        <rect key="frame" x="0.0" y="358.5" width="417" height="40"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="10" id="Iwe-sB-c3g"/>
+                            <constraint firstAttribute="height" constant="40" id="Ocb-6Z-N2n"/>
+                        </constraints>
+                        <items>
+                            <barButtonItem title="star" image="star" width="50" id="TOU-hL-u3u">
+                                <connections>
+                                    <action selector="didTapStar:" destination="tm7-gB-fCb" id="0li-Tr-IAt"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="comment" image="comment" width="50" id="CTK-cB-JcR">
+                                <connections>
+                                    <action selector="didTapSave:" destination="tm7-gB-fCb" id="vlI-jD-A4y"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="share" image="share" width="50" id="xUp-nU-inD">
+                                <connections>
+                                    <action selector="didTapShare:" destination="tm7-gB-fCb" id="AjR-eN-2MF"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem style="plain" systemItem="flexibleSpace" id="N1f-Av-03P"/>
+                            <barButtonItem title="comment" image="save" width="30" id="6Ei-kF-Wtc" userLabel="save">
+                                <connections>
+                                    <action selector="didTapSave:" destination="tm7-gB-fCb" id="4LH-5M-MBX"/>
+                                </connections>
+                            </barButtonItem>
+                        </items>
+                        <color key="barTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="clipsToBounds" value="YES"/>
+                        </userDefinedRuntimeAttributes>
+                    </toolbar>
+                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="74u-S6-H5Q" userLabel="bottomSeperator">
+                        <rect key="frame" x="0.0" y="398.5" width="417" height="0.0"/>
+                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="0.25" id="Iwe-sB-c3g"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="mrB-57-TEP"/>
                     </view>
                 </subviews>
-                <color key="backgroundColor" red="0.20000000000000001" green="0.20784313725490194" blue="0.22745098039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
+                    <constraint firstAttribute="trailing" secondItem="36v-fD-Tsi" secondAttribute="trailing" id="0UG-1f-10u"/>
                     <constraint firstItem="K5B-p1-jdd" firstAttribute="leading" secondItem="bJY-ha-tCj" secondAttribute="leading" constant="8" id="0dI-qi-eQK"/>
                     <constraint firstAttribute="bottom" secondItem="74u-S6-H5Q" secondAttribute="bottom" id="6lm-To-Rbf"/>
                     <constraint firstItem="74u-S6-H5Q" firstAttribute="leading" secondItem="bJY-ha-tCj" secondAttribute="leading" id="7J9-T0-x4z"/>
-                    <constraint firstItem="qgi-EZ-ojr" firstAttribute="top" secondItem="K5B-p1-jdd" secondAttribute="bottom" constant="4" id="A0v-Fv-8fS"/>
+                    <constraint firstItem="qgi-EZ-ojr" firstAttribute="top" secondItem="K5B-p1-jdd" secondAttribute="bottom" constant="8" id="A0v-Fv-8fS"/>
                     <constraint firstAttribute="trailing" secondItem="74u-S6-H5Q" secondAttribute="trailing" id="G4Y-Tv-SRT"/>
                     <constraint firstItem="74u-S6-H5Q" firstAttribute="leading" secondItem="bJY-ha-tCj" secondAttribute="leading" id="JCg-nI-cre"/>
+                    <constraint firstItem="36v-fD-Tsi" firstAttribute="leading" secondItem="bJY-ha-tCj" secondAttribute="leading" id="PW8-6F-SLc"/>
                     <constraint firstAttribute="trailing" secondItem="K5B-p1-jdd" secondAttribute="trailing" constant="8" id="TPG-qc-SiL"/>
                     <constraint firstAttribute="trailing" secondItem="74u-S6-H5Q" secondAttribute="trailing" id="ldT-uG-ft9"/>
+                    <constraint firstItem="74u-S6-H5Q" firstAttribute="top" secondItem="36v-fD-Tsi" secondAttribute="bottom" id="mlV-CF-fwA"/>
                     <constraint firstAttribute="trailing" secondItem="qgi-EZ-ojr" secondAttribute="trailing" id="nHv-Wd-sTq"/>
                     <constraint firstItem="qgi-EZ-ojr" firstAttribute="leading" secondItem="bJY-ha-tCj" secondAttribute="leading" id="owY-AL-8O5"/>
+                    <constraint firstItem="36v-fD-Tsi" firstAttribute="top" secondItem="qgi-EZ-ojr" secondAttribute="bottom" id="pHx-hv-b9E"/>
                     <constraint firstItem="K5B-p1-jdd" firstAttribute="top" secondItem="bJY-ha-tCj" secondAttribute="top" constant="8" id="uSa-OY-7xs"/>
-                    <constraint firstItem="74u-S6-H5Q" firstAttribute="top" secondItem="qgi-EZ-ojr" secondAttribute="bottom" constant="8" id="yp4-se-3vi"/>
                 </constraints>
             </tableViewCellContentView>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-            <color key="tintColor" red="0.92941176469999998" green="0.45882352939999999" blue="0.2784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <connections>
                 <outlet property="postCreditDescription" destination="25P-4o-lvF" id="riB-ky-9I0"/>
                 <outlet property="postImageView" destination="qgi-EZ-ojr" id="2g9-x2-GqL"/>
                 <outlet property="postTitle" destination="lh4-XE-H4A" id="ame-Sg-BDV"/>
-                <outlet property="shareButton" destination="YxX-HD-wVe" id="rv2-Mo-76M"/>
                 <outlet property="sourceButton" destination="tEA-PQ-Ap0" id="eeG-si-wnP"/>
+                <outlet property="titleStackViewHeightConstraint" destination="YNL-pm-jEE" id="uot-9t-gMT"/>
             </connections>
-            <point key="canvasLocation" x="139.85507246376812" y="196.20535714285714"/>
+            <point key="canvasLocation" x="129.71014492753625" y="179.79910714285714"/>
         </tableViewCell>
     </objects>
     <resources>
+        <image name="comment" width="20" height="20"/>
         <image name="reddit" width="170.66667175292969" height="170.66667175292969"/>
-        <image name="shareOrange" width="30" height="30"/>
+        <image name="save" width="20" height="20"/>
+        <image name="share" width="20" height="20"/>
+        <image name="star" width="20" height="20"/>
     </resources>
 </document>

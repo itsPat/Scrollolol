@@ -28,6 +28,7 @@ class NetworkManager: NSObject {
     var isFetchingPosts = false
     var delegate: NetworkManagerDelegate?
     var afterPostFullNames = [String:String]()
+    var previouslyFetchedPostURLs = [String:Bool]()
     
     
     
@@ -35,15 +36,12 @@ class NetworkManager: NSObject {
         
         if !isFetchingPosts {
             isFetchingPosts = true
-            if after {
-                afterPostFullNames.removeAll()
-            }
             for subreddit in Subreddit.allCases {
                 var urlString = "https://api.reddit.com/r/\(subreddit.rawValue)"
                 urlString += "/\(modifier.rawValue)"
                 urlString += "/.json?"
-                urlString += after ? "&after=\(afterPostFullNames[subreddit.rawValue] ?? "")" : ""
-//                urlString += "&limit=5"
+                urlString += after ? "&after=\(self.afterPostFullNames[subreddit.rawValue] ?? "")" : ""
+                urlString += "&limit=3"
                 
                 print("✅FETCHING NEW DATA WITH URL: \(urlString)✅")
                 
@@ -73,16 +71,18 @@ class NetworkManager: NSObject {
                             let mediaTypeString = String(imageURL.suffix(3))
                             if let mediaType = MediaType(rawValue: mediaTypeString) {
                                 let postURL = "https://www.reddit.com\(permalink)"
-                                self.fetchImageFor(post: Post(credit: .reddit, creditDescription: "r/\(subreddit.rawValue)", postURL: postURL, title: title, imageURL: imageURL, mediaType: mediaType), completion: { (result) in
+                                let post = Post(credit: .reddit, creditDescription: "r/\(subreddit.rawValue)", postURL: postURL, title: title, imageURL: imageURL, mediaType: mediaType)
+                                self.fetchImageFor(post: post, completion: { (result) in
                                     switch result {
                                     case .success(let post):
-                                        print("⭐️DID FETCH POST FROM \(post.credit.rawValue)⭐️")
+                                        print("⭐️DID FETCH POST FROM \(post.credit.rawValue.uppercased())⭐️")
                                         self.delegate?.didFinishFetchingReddit(post: post)
                                     case .failure(let err):
                                         self.delegate?.fetchRedditPostDidFail()
                                         print("Did fail to fetch image with \(err.localizedDescription)")
                                     }
                                 })
+                                
                             }
                         }
                     }
@@ -94,29 +94,31 @@ class NetworkManager: NSObject {
     }
     
     func fetchImageFor(post: Post, completion: @escaping (Result<Post, Error>) -> ()) {
-        if let url = URL(string: post.imageURL) {
-            let config = URLSessionConfiguration.default
-            let session = URLSession(configuration: config)
-            
-            let downloadTask = session.downloadTask(with: url) { (location, response, error) in
-                if let error = error {
-                    print(error.localizedDescription)
-                    return
-                }
+        if self.previouslyFetchedPostURLs[post.postURL] == nil {
+            self.previouslyFetchedPostURLs[post.postURL] = true
+            if let url = URL(string: post.imageURL) {
+                let config = URLSessionConfiguration.default
+                let session = URLSession(configuration: config)
                 
-                if let location = location {
-                    do {
-                        let data = try Data(contentsOf: location)
-                        post.imageData = data
-                        completion(.success(post))
-                    } catch {
-                        completion(.failure(error))
+                let downloadTask = session.downloadTask(with: url) { (location, response, error) in
+                    if let error = error {
+                        print(error.localizedDescription)
+                        return
+                    }
+                    
+                    if let location = location {
+                        do {
+                            let data = try Data(contentsOf: location)
+                            PhotoManager.shared.saveMediaFor(post: post, data: data)
+                            completion(.success(post))
+                        } catch {
+                            completion(.failure(error))
+                        }
                     }
                 }
+                downloadTask.resume()
             }
-            downloadTask.resume()
         }
-        
     }
     
     func fetch9GAGPosts(delegate: XMLManagerDelegate) {

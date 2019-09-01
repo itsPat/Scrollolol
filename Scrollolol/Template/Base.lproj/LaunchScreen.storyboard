@@ -18,18 +18,18 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="whiteMonkey" translatesAutoresizingMaskIntoConstraints="NO" id="IEh-0e-beU">
-                                <rect key="frame" x="60" y="301" width="294" height="294"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="star-2" translatesAutoresizingMaskIntoConstraints="NO" id="IEh-0e-beU">
+                                <rect key="frame" x="143" y="384" width="128" height="128"/>
                                 <constraints>
+                                    <constraint firstAttribute="height" constant="128" id="6U4-Bg-AdK"/>
+                                    <constraint firstAttribute="width" constant="128" id="Mo6-IR-bzS"/>
                                     <constraint firstAttribute="width" secondItem="IEh-0e-beU" secondAttribute="height" multiplier="1:1" id="e7h-yU-055"/>
                                 </constraints>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" red="0.40784313729999999" green="0.24313725489999999" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="IEh-0e-beU" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="8Bb-up-EfH"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="IEh-0e-beU" secondAttribute="trailing" constant="60" id="czk-Uu-beq"/>
-                            <constraint firstItem="IEh-0e-beU" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="60" id="vhX-KN-QhS"/>
                             <constraint firstItem="IEh-0e-beU" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="xe6-BZ-gq4"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -37,10 +37,10 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="53" y="375"/>
+            <point key="canvasLocation" x="52.173913043478265" y="375"/>
         </scene>
     </scenes>
     <resources>
-        <image name="whiteMonkey" width="2100" height="2100"/>
+        <image name="star-2" width="228.33332824707031" height="218"/>
     </resources>
 </document>

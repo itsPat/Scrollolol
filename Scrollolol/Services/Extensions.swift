@@ -12,8 +12,8 @@ extension UIColor {
     static let monkeyOrange = UIColor(red: 255/255, green: 108/255, blue: 55/255, alpha: 1.0)
     static let monkeyGray = UIColor(red: 64/255, green: 79/255, blue: 87/255, alpha: 1.0)
     static let monkeyPurple = UIColor(red: 104/255, green: 62/255, blue: 234/255, alpha: 1.0)
-    static let darkModeTableViewBackground = UIColor(red: 33/255, green: 33/255, blue: 36/255, alpha: 1.0)
-    static let darkModeCellBackground = UIColor(red: 51/255, green: 53/255, blue: 58/255, alpha: 1.0)
+    static let darkModeTableViewBackground = UIColor(red: 48/255, green: 48/255, blue: 58/255, alpha: 1.0)
+    static let darkModeCellBackground = UIColor.black
 }
 
 extension UIView {
@@ -64,12 +64,11 @@ extension UIImage {
             print("image doesn't exist")
             return nil
         }
-        
         return UIImage.animatedImageWithSource(source)
     }
     
     class func delayForImageAtIndex(_ index: Int, source: CGImageSource!) -> Double {
-        var delay = 0.1
+        var delay = 0.06
         
         let cfProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
         let gifProperties: CFDictionary = unsafeBitCast(
@@ -87,10 +86,6 @@ extension UIImage {
         }
         
         delay = delayObject as! Double
-        
-        if delay < 0.1 {
-            delay = 0.1
-        }
         
         return delay
     }
@@ -186,3 +181,4 @@ extension UIImage {
         return animation
     }
 }
+

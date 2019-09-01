@@ -13,8 +13,8 @@ protocol PostCellDelegate: UIViewController { }
 
 class PostCell: UITableViewCell {
 
+    @IBOutlet weak var titleStackViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var sourceButton: UIButton!
-    @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var postTitle: UILabel!
     @IBOutlet weak var postCreditDescription: UILabel!
     @IBOutlet weak var postImageView: UIImageView!
@@ -40,11 +40,13 @@ class PostCell: UITableViewCell {
         sourceButton.setImage(post.credit == .reddit ? #imageLiteral(resourceName: "reddit") : #imageLiteral(resourceName: "9gag"), for: .normal)
         postTitle.text = post.title
         postCreditDescription.text = post.creditDescription
-        switch post.mediaType {
-        case .gif:
-            postImageView.image = UIImage.gifImageWithData(post.imageData ?? Data())
-        default:
-            postImageView.image = UIImage(data: post.imageData ?? Data())
+        
+        DispatchQueue.global(qos: .background).async {
+            if let image = PhotoManager.shared.loadMediaFor(post: post) {
+                DispatchQueue.main.async {
+                    self.postImageView.image = image
+                }
+            }
         }
     }
     
@@ -53,12 +55,22 @@ class PostCell: UITableViewCell {
         UIApplication.shared.open(postURL, options: [:], completionHandler: nil)
     }
     
+    @IBAction func didTapStar(_ sender: Any) {
+    
+    }
+    
+    @IBAction func didTapSave(_ sender: Any) {
+        
+    }
+    
     @IBAction func didTapShare(_ sender: Any) {
-        guard let post = post else { return }
-        guard let image = UIImage(data: post.imageData ?? Data()) else { return }
-        let activityItems: [Any] = [image, "Check out this post I found on Meme Monkey!"]
-        let avc = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-        delegate?.present(avc, animated: true, completion: nil)
+        DispatchQueue.main.async {
+            guard let post = self.post else { return }
+            guard let image = PhotoManager.shared.loadMediaFor(post: post) else { return }
+            let activityItems: [Any] = [image, "Check out this post I found on Meme Monkey!"]
+            let avc = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+            self.delegate?.present(avc, animated: true, completion: nil)
+        }
     }
     
 }

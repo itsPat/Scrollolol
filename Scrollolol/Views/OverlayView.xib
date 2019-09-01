@@ -16,24 +16,25 @@
             <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="whiteMonkey" translatesAutoresizingMaskIntoConstraints="NO" id="ORZ-fl-kqW">
-                    <rect key="frame" x="60" y="301" width="294" height="294"/>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="star-2" translatesAutoresizingMaskIntoConstraints="NO" id="ORZ-fl-kqW">
+                    <rect key="frame" x="143" y="384" width="128" height="128"/>
                     <constraints>
+                        <constraint firstAttribute="width" constant="128" id="AKF-DM-YGF"/>
+                        <constraint firstAttribute="height" constant="128" id="dkZ-Yu-tf5"/>
                         <constraint firstAttribute="width" secondItem="ORZ-fl-kqW" secondAttribute="height" multiplier="1:1" id="iRt-qx-s4k"/>
                     </constraints>
                 </imageView>
             </subviews>
-            <color key="backgroundColor" red="0.40784313729999999" green="0.24313725489999999" blue="0.91764705879999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="SwZ-Jb-jjf" firstAttribute="trailing" secondItem="ORZ-fl-kqW" secondAttribute="trailing" constant="60" id="9Mh-Dn-zXM"/>
                 <constraint firstItem="ORZ-fl-kqW" firstAttribute="centerX" secondItem="Rvu-xs-ieM" secondAttribute="centerX" id="WGY-dy-u3T"/>
                 <constraint firstItem="ORZ-fl-kqW" firstAttribute="centerY" secondItem="Rvu-xs-ieM" secondAttribute="centerY" id="ZBZ-mH-uRm"/>
-                <constraint firstItem="ORZ-fl-kqW" firstAttribute="leading" secondItem="SwZ-Jb-jjf" secondAttribute="leading" constant="60" id="yor-ea-gC5"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="SwZ-Jb-jjf"/>
+            <point key="canvasLocation" x="137.68115942028987" y="114.50892857142857"/>
         </view>
     </objects>
     <resources>
-        <image name="whiteMonkey" width="2100" height="2100"/>
+        <image name="star-2" width="228.33332824707031" height="218"/>
     </resources>
 </document>
