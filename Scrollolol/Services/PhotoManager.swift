@@ -11,15 +11,25 @@ import UIKit
 class PhotoManager: NSObject {
     static let shared = PhotoManager()
     
-    func saveMediaFor(post: Post, data: Data) {
-        DispatchQueue.global(qos: .background).async {
-            guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+    func saveMediaFor(post: Post, data: Data, completion: @escaping (Result<URL,Error>) -> ()) {
+        let nsDocumentDirectory = FileManager.SearchPathDirectory.documentDirectory
+        let nsUserDomainMask = FileManager.SearchPathDomainMask.userDomainMask
+        let paths = NSSearchPathForDirectoriesInDomains(nsDocumentDirectory, nsUserDomainMask, true)
+        if let dirPath = paths.first {
             let fileName = "\(post.id).\(post.mediaType.rawValue)"
-            let fileURL = documentsDirectory.appendingPathComponent(fileName)
-            do {
-                try data.write(to: fileURL)
-            } catch {
-                print("error saving file:", error)
+            let imageURL = URL(fileURLWithPath: dirPath).appendingPathComponent(fileName)
+            if !FileManager.default.fileExists(atPath: imageURL.path) {
+                DispatchQueue.global(qos: .background).async {
+                    do {
+                        try data.write(to: imageURL)
+                        completion(.success(imageURL))
+                    } catch {
+                        print("error saving file:", error)
+                        completion(.failure(error))
+                    }
+                }
+            } else {
+                completion(.success(imageURL))
             }
         }
     }
@@ -44,10 +54,8 @@ class PhotoManager: NSObject {
                     } catch {
                         print(error.localizedDescription)
                     }
-                case .jpg, .png:
+                case .jpeg, .jpg, .png:
                     completion(UIImage(contentsOfFile: imageURL.path))
-                default:
-                    break
                 }
             }
         }

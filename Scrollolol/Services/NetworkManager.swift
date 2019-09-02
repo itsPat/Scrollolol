@@ -16,9 +16,29 @@ enum SubredditModifier: String, CaseIterable {
     case best, hot, top, rising, new, random
 }
 
+enum Instagram: String, CaseIterable {
+    case fuckjerry = "11762801"
+    case funnymemes = "2955360060"
+    case memes = "300712527"
+    case beigecardigan = "32458049"
+    
+    func accountName() -> String {
+        switch self {
+        case .fuckjerry:
+            return "@fuckjerry"
+        case .funnymemes:
+            return "@funnymemes"
+        case .memes:
+            return "@memes"
+        case .beigecardigan:
+            return "@beigecardigan"
+        }
+    }
+}
+
 protocol NetworkManagerDelegate {
-    func didFinishFetchingReddit(post: Post)
-    func fetchRedditPostDidFail()
+    func didFinishFetching(post: Post)
+    func fetchPostDidFail()
 }
 
 
@@ -27,12 +47,16 @@ class NetworkManager: NSObject {
     static let shared = NetworkManager()
     var isFetchingPosts = false
     var delegate: NetworkManagerDelegate?
-    var afterPostFullNames = [String:String]()
-    var previouslyFetchedPostURLs = [String:Bool]()
+    var redditAfterIDs = [String:String]()
+    var instagramAfterIDs = [String:String]()
     
     
     
-    func fetchPosts(modifier: SubredditModifier, after: Bool) {
+    func fetchRedditPosts(modifier: SubredditModifier, after: Bool) {
+        
+        if !after {
+            redditAfterIDs.removeAll()
+        }
         
         if !isFetchingPosts {
             isFetchingPosts = true
@@ -40,7 +64,7 @@ class NetworkManager: NSObject {
                 var urlString = "https://api.reddit.com/r/\(subreddit.rawValue)"
                 urlString += "/\(modifier.rawValue)"
                 urlString += "/.json?"
-                urlString += after ? "&after=\(self.afterPostFullNames[subreddit.rawValue] ?? "")" : ""
+                urlString += after ? "&after=\(self.redditAfterIDs[subreddit.rawValue] ?? "")" : ""
                 urlString += "&limit=3"
                 
                 print("✅FETCHING NEW DATA WITH URL: \(urlString)✅")
@@ -49,7 +73,7 @@ class NetworkManager: NSObject {
                 
                 let task = URLSession.shared.dataTask(with: url) { (data, res, err) in
                     if let err = err {
-                        self.delegate?.fetchRedditPostDidFail()
+                        self.delegate?.fetchPostDidFail()
                         print("Failed to get data from \(url) with error: \(err)")
                     }
                     
@@ -59,31 +83,24 @@ class NetworkManager: NSObject {
                     guard let postsJSON = jsonData["children"] as? [[String:Any]] else { return }
                     
                     for postJSON in postsJSON {
-                        guard let postData = postJSON["data"] as? [String:Any] else { return }
-                        guard let title = postData["title"] as? String else { return }
-                        guard let imageURL = postData["url"] as? String else { return }
-                        guard let permalink = postData["permalink"] as? String else { return }
-                        guard let postID = postData["id"] as? String else { return }
-                        self.afterPostFullNames[subreddit.rawValue] = "t3_\(postID)"
-                        
-                        if imageURL.contains(".png") || imageURL.contains(".jpg") || imageURL.contains(".gif") {
-                            
-                            let mediaTypeString = String(imageURL.suffix(3))
-                            if let mediaType = MediaType(rawValue: mediaTypeString) {
-                                let postURL = "https://www.reddit.com\(permalink)"
-                                let post = Post(credit: .reddit, creditDescription: "r/\(subreddit.rawValue)", postURL: postURL, title: title, imageURL: imageURL, mediaType: mediaType)
-                                self.fetchImageFor(post: post, completion: { (result) in
-                                    switch result {
-                                    case .success(let post):
-                                        print("⭐️DID FETCH POST FROM \(post.credit.rawValue.uppercased())⭐️")
-                                        self.delegate?.didFinishFetchingReddit(post: post)
-                                    case .failure(let err):
-                                        self.delegate?.fetchRedditPostDidFail()
-                                        print("Did fail to fetch image with \(err.localizedDescription)")
-                                    }
-                                })
-                                
-                            }
+                        guard let postData = postJSON["data"] as? [String:Any] else { continue }
+                        guard let title = postData["title"] as? String else { continue }
+                        guard let imageURL = postData["url"] as? String else { continue }
+                        guard let permalink = postData["permalink"] as? String else { continue }
+                        guard let postID = postData["id"] as? String else { continue }
+                        if let mediaType = MediaType(rawValue: imageURL.components(separatedBy: .punctuationCharacters).last ?? "") {
+                            self.redditAfterIDs[subreddit.rawValue] = "t3_\(postID)"
+                            let postURL = "https://www.reddit.com\(permalink)"
+                            let post = Post(id: postID, credit: .reddit, creditDescription: "r/\(subreddit.rawValue)", postURL: postURL, title: title, imageURL: imageURL, mediaType: mediaType)
+                            self.fetchImageFor(post: post, completion: { (result) in
+                                switch result {
+                                case .success(let post):
+                                    self.delegate?.didFinishFetching(post: post)
+                                case .failure(let err):
+                                    self.delegate?.fetchPostDidFail()
+                                    print("Did fail to fetch image with \(err.localizedDescription)")
+                                }
+                            })
                         }
                     }
                 }
@@ -93,34 +110,71 @@ class NetworkManager: NSObject {
         }
     }
     
-    func fetchImageFor(post: Post, completion: @escaping (Result<Post, Error>) -> ()) {
-        if self.previouslyFetchedPostURLs[post.postURL] == nil {
-            self.previouslyFetchedPostURLs[post.postURL] = true
-            if let url = URL(string: post.imageURL) {
-                let config = URLSessionConfiguration.default
-                let session = URLSession(configuration: config)
+    func fetchInstagramPosts(after: Bool) {
+        if !after {
+            instagramAfterIDs.removeAll()
+        }
+        for instagram in Instagram.allCases {
+            let urlString = "https://www.instagram.com/graphql/query/?query_hash=472f257a40c653c64c666ce877d59d2b&variables={\"id\":\"\(instagram.rawValue)\",\"first\":3,\"after\":\"\(self.instagramAfterIDs[instagram.rawValue] ?? "")\"}"
+            
+            guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") else { return }
+            
+            print("✅FETCHING NEW DATA WITH URL: \(url.absoluteString)✅")
+            
+            let task = URLSession.shared.dataTask(with: url) { (data, res, err) in
+                if let err = err {
+                    self.delegate?.fetchPostDidFail()
+                    print("Failed to get data from \(url) with error: \(err)")
+                }
                 
-                let downloadTask = session.downloadTask(with: url) { (location, response, error) in
-                    if let error = error {
-                        print(error.localizedDescription)
-                        return
+                guard let data = data else { return }
+                guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String:Any] else { return }
+                guard let dataDict = json["data"] as? [String:Any] else { return }
+                guard let userDict = dataDict["user"] as? [String:Any] else { return }
+                guard let timelineMediaDict = userDict["edge_owner_to_timeline_media"] as? [String:Any] else { return }
+                guard let pageInfo = timelineMediaDict["page_info"] as? [String:Any] else { return }
+                guard let endCursor = pageInfo["end_cursor"] as? String else { return }
+                guard let postsJSON = timelineMediaDict["edges"] as? [[String:Any]] else { return }
+  
+                
+                for postJSON in postsJSON {
+                    guard let nodeData = postJSON["node"] as? [String:Any] else { continue }
+                    guard let edgeMedia = nodeData["edge_media_to_caption"] as? [String:Any] else { continue }
+                    guard let shortcode = nodeData["shortcode"] as? String else { continue }
+                    let postURL = "https://www.instagram.com/p/\(shortcode)/"
+                    guard let imageURL = nodeData["display_url"] as? String else { continue }
+                    guard let isVideo = nodeData["is_video"] as? Bool else { continue }
+                    guard let firstEdge = (edgeMedia["edges"] as? [[String:Any]])?.first else { continue }
+                    guard let edgeNode = firstEdge["node"] as? [String:String] else { continue }
+                    guard let title = edgeNode["text"] else { continue }
+                    guard isVideo == false else { continue }
+                    
+                    var mediaType: MediaType? = nil
+                    
+                    if imageURL.contains(".jpg") {
+                        mediaType = .jpg
+                    } else if imageURL.contains(".png") {
+                        mediaType = .png
+                    } else if imageURL.contains(".gif") {
+                        mediaType = .gif
                     }
                     
-                    if let location = location {
-                        do {
-                            let data = try Data(contentsOf: location)
-                            if let media = UIImage(data: data) {
-                                post.imageAspectRatio = media.size.width / media.size.height
-                                PhotoManager.shared.saveMediaFor(post: post, data: data)
-                                completion(.success(post))
+                    if let mediaType = mediaType {
+                        self.instagramAfterIDs[instagram.rawValue] = endCursor
+                        let post = Post(id: shortcode, credit: .instagram, creditDescription: instagram.accountName(), postURL: postURL, title: title, imageURL: imageURL, mediaType: mediaType)
+                        self.fetchImageFor(post: post, completion: { (result) in
+                            switch result {
+                            case .success(let post):
+                                self.delegate?.didFinishFetching(post: post)
+                            case .failure(let err):
+                                self.delegate?.fetchPostDidFail()
+                                print("Did fail to fetch image with \(err.localizedDescription)")
                             }
-                        } catch {
-                            completion(.failure(error))
-                        }
+                        })
                     }
                 }
-                downloadTask.resume()
             }
+            task.resume()
         }
     }
     
@@ -142,6 +196,44 @@ class NetworkManager: NSObject {
             task.resume()
         }
     }
+    
+    func fetchImageFor(post: Post, completion: @escaping (Result<Post, Error>) -> ()) {
+        if let url = URL(string: post.imageURL) {
+            let config = URLSessionConfiguration.default
+            let session = URLSession(configuration: config)
+            
+            let downloadTask = session.downloadTask(with: url) { (location, response, error) in
+                if let error = error {
+                    print(error.localizedDescription)
+                    return
+                }
+                if let location = location {
+                    do {
+                        let data = try Data(contentsOf: location)
+                        if let media = UIImage(data: data) {
+                            post.imageAspectRatio = media.size.width / media.size.height
+                            print("MEDIA SIZE: W: \(media.size.width), H: \(media.size.height)")
+                            PhotoManager.shared.saveMediaFor(post: post, data: data, completion: { (result) in
+                                switch result {
+                                case .success(let imageURL):
+                                    post.imagePath = imageURL.path
+                                    completion(.success(post))
+                                case .failure(let err):
+                                    print("FAILED WITH ERROR \(err.localizedDescription).")
+                                    completion(.failure(err))
+                                }
+                            })
+                        }
+                    } catch {
+                        completion(.failure(error))
+                    }
+                }
+            }
+            downloadTask.resume()
+        }
+    }
+    
+    
     
 }
 

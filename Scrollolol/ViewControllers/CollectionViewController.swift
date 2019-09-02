@@ -11,58 +11,53 @@ import UIKit
 class CollectionViewController: UIViewController {
 
     @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet weak var modifierButton: UIButton!
     let refreshControl = UIRefreshControl()
     var posts = [Post]()
     var blurView: UIVisualEffectView?
     var fullScreenImageView: UIImageView?
     var currentModifier: SubredditModifier?
     var finalPage = false
+    var existingImagePaths = [String:Bool]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let button = UIButton(type: .custom)
-        button.setImage(UIImage(named: "starSmall"), for: .normal)
-        button.imageView?.contentMode = .scaleAspectFit
-        button.addTarget(self, action: #selector(didTapStar(_:)), for: .touchUpInside)
-        navigationItem.titleView = button
         toggleOverlayView(active: true)
         refreshControl.addTarget(self, action:  #selector(handleRefresh), for: .valueChanged)
         collectionView.backgroundView = refreshControl
-        collectionView.scrollsToTop = true
-        collectionView.insetsLayoutMarginsFromSafeArea = false
         collectionView.register(PostCollectionViewCell.getNib(), forCellWithReuseIdentifier: PostCollectionViewCell.reuseIdentifier())
         collectionView.register(LoadingCollectionViewCell.getNib(), forCellWithReuseIdentifier: LoadingCollectionViewCell.reuseIdentifier())
-        
         fetchPosts(modifier: .hot, after: false)
     }
     
     func fetchPosts(modifier: SubredditModifier, after: Bool) {
         NetworkManager.shared.delegate = self
-        NetworkManager.shared.fetchPosts(modifier: modifier, after: after)
+        NetworkManager.shared.fetchInstagramPosts(after: after)
+        NetworkManager.shared.fetchRedditPosts(modifier: modifier, after: after)
+//        NetworkManager.shared.fetch9GAGPosts(delegate: self)
     }
     
     // MARK: Actions
     @objc func handleRefresh() {
-        fetchPosts(modifier: currentModifier ?? .hot, after: false)
-        collectionView.reloadData()
+//        fetchPosts(modifier: currentModifier ?? .hot, after: false)
+//        collectionView.reloadData()
         refreshControl.endRefreshing()
     }
     
-    @objc func didTapStar(_ sender: UIButton) {
-        navigationController?.setNavigationBarHidden(false, animated: true)
-        collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
-    }
-    
-    @IBAction func didTapMenu(_ sender: UIBarButtonItem) {
-    }
-    
-    @IBAction func didTapFetch(_ sender: UIBarButtonItem) {
+    @IBAction func didTapModifier(_ sender: UIButton) {
         let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        actionSheet.blurStyle = .dark
+        actionSheet.view.tintColor = .yellow
         
         for modifier in SubredditModifier.allCases {
             let action = UIAlertAction(title: modifier.rawValue.capitalized, style: .default) { (_) in
+                self.posts.removeAll()
+                self.collectionView.reloadData()
                 self.fetchPosts(modifier: modifier, after: false)
                 self.currentModifier = modifier
+                sender.setTitle(modifier.rawValue.uppercased(), for: .normal)
+                sender.sizeToFit()
+                sender.frame = sender.frame.insetBy(dx: -16, dy: 0)
             }
             actionSheet.addAction(action)
         }
@@ -71,8 +66,14 @@ class CollectionViewController: UIViewController {
         actionSheet.addAction(cancel)
         
         definesPresentationContext = true
-        actionSheet.popoverPresentationController?.barButtonItem = sender
+        actionSheet.popoverPresentationController?.sourceRect = sender.frame
         present(actionSheet, animated: true, completion: nil)
+    }
+    
+    @IBAction func didTapMenu(_ sender: UIBarButtonItem) {
+    }
+    
+    @IBAction func didTapFetch(_ sender: UIBarButtonItem) {
     }
     
     @IBAction func handlePan(_ sender: UIPanGestureRecognizer) {
@@ -197,10 +198,15 @@ extension CollectionViewController: UICollectionViewDataSource {
     }
     
     func insertPost(post: Post) {
+        guard let imagePath = post.imagePath else { return }
         DispatchQueue.main.async {
-            self.toggleOverlayView(active: false)
-            self.posts.append(post)
-            self.collectionView.insertItems(at: [IndexPath(item: self.posts.count - 1, section: 0)])
+            if self.existingImagePaths[imagePath] == nil {
+                self.existingImagePaths[imagePath] = true
+                print("⭐️DID FETCH POST FROM \(post.credit.rawValue.uppercased())⭐️")
+                self.toggleOverlayView(active: false)
+                self.posts.append(post)
+                self.collectionView.insertItems(at: [IndexPath(item: self.posts.count - 1, section: 0)])
+            }
         }
     }
     
@@ -227,22 +233,22 @@ extension CollectionViewController: UICollectionViewDelegateFlowLayout {
         let numberOfCellsHorizontally: CGFloat = UIDevice().userInterfaceIdiom == .pad ? 3 : 1
         let spacing = numberOfCellsHorizontally * 8.0 * (numberOfCellsHorizontally + 1)
         let width = (view.frame.inset(by: view.safeAreaInsets).width - spacing) / numberOfCellsHorizontally
-        let height = (width / ratio) + 108.25
+        let height = (width / ratio) + 112
         return CGSize(width: width, height: height)
     }
 }
 
 
 extension CollectionViewController: NetworkManagerDelegate {
-    func fetchRedditPostDidFail() {
-        print("❌REDDIT POST FAILED❌")
+    func fetchPostDidFail() {
+        print("❌FETCH POST FAILED❌")
         DispatchQueue.main.async {
             self.finalPage = true
             self.collectionView.reloadData()
         }
     }
     
-    func didFinishFetchingReddit(post: Post) {
+    func didFinishFetching(post: Post) {
         insertPost(post: post)
     }
 }

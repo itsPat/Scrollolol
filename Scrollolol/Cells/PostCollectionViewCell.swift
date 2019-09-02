@@ -37,7 +37,16 @@ class PostCollectionViewCell: UICollectionViewCell {
     func updateCell(post: Post) {
         self.post = post
         guard let post = self.post else { return }
-        sourceButton.setImage(post.credit == .reddit ? #imageLiteral(resourceName: "reddit") : #imageLiteral(resourceName: "9gag"), for: .normal)
+        switch post.credit {
+        case .instagram:
+            sourceButton.setImage(#imageLiteral(resourceName: "instagram"), for: .normal)
+        case .reddit:
+            sourceButton.setImage(#imageLiteral(resourceName: "reddit"), for: .normal)
+        case .ninegag:
+            sourceButton.setImage(#imageLiteral(resourceName: "9gag"), for: .normal)
+        default:
+            break
+        }
         postTitle.text = post.title
         postCreditDescription.text = post.creditDescription
         PhotoManager.shared.loadMediaFor(post: post) { (image) in
@@ -64,7 +73,7 @@ class PostCollectionViewCell: UICollectionViewCell {
     
     @IBAction func didTapShare(_ sender: Any) {
         guard let image = postImageView.image else { return }
-        let activityItems: [Any] = [image, "Check out this post I found on Meme Monkey!"]
+        let activityItems: [Any] = [image, "Sent via ⭐️ Meme Star ⭐️"]
         let avc = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         DispatchQueue.main.async {
             self.delegate?.present(avc, animated: true, completion: nil)

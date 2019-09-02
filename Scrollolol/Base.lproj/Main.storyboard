@@ -19,6 +19,21 @@
                         <rect key="frame" x="0.0" y="44" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="tintColor" red="0.98431372549019602" green="0.88235294117647056" blue="0.18431372549019609" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <textAttributes key="titleTextAttributes">
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                        </textAttributes>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="size" keyPath="layer.shadowOffset">
+                                <size key="value" width="0.0" height="0.0"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.shadowRadius">
+                                <integer key="value" value="3"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.shadowOpacity">
+                                <integer key="value" value="1"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="NO"/>
+                        </userDefinedRuntimeAttributes>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Net-x0-cLC">
@@ -32,7 +47,7 @@
             </objects>
             <point key="canvasLocation" x="162" y="121"/>
         </scene>
-        <!--Home-->
+        <!--Collection View Controller-->
         <scene sceneID="8LB-g0-cm4">
             <objects>
                 <viewController id="FKq-yQ-Ull" customClass="CollectionViewController" customModule="Scrollolol" customModuleProvider="target" sceneMemberID="viewController">
@@ -50,6 +65,10 @@
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="scrollsToTop" value="YES"/>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="insetsLayoutMarginsFromSafeArea" value="NO"/>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <outlet property="dataSource" destination="FKq-yQ-Ull" id="NTO-Qn-KC5"/>
                                     <outlet property="delegate" destination="FKq-yQ-Ull" id="0Ld-Xg-Viy"/>
@@ -66,12 +85,28 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="meJ-vZ-FUD"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Home" id="Tqy-SL-Act">
+                    <navigationItem key="navigationItem" id="Tqy-SL-Act">
+                        <nil key="title"/>
                         <barButtonItem key="leftBarButtonItem" title="Subreddit" image="menu" style="done" id="EMi-6b-eMa" userLabel="Menu">
                             <connections>
                                 <action selector="didTapMenu:" destination="FKq-yQ-Ull" id="zcb-rC-06a"/>
                             </connections>
                         </barButtonItem>
+                        <button key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="pik-LJ-juY">
+                            <rect key="frame" x="178" y="7" width="60" height="30"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" white="0.10000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                            <state key="normal" title="HOT"/>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                    <integer key="value" value="15"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                            <connections>
+                                <action selector="didTapModifier:" destination="FKq-yQ-Ull" eventType="touchUpInside" id="45R-A5-e0e"/>
+                            </connections>
+                        </button>
                         <barButtonItem key="rightBarButtonItem" title="Modifier" image="filter" style="done" id="6R7-Fj-aos">
                             <connections>
                                 <action selector="didTapFetch:" destination="FKq-yQ-Ull" id="Peg-N8-34b"/>
@@ -80,11 +115,12 @@
                     </navigationItem>
                     <connections>
                         <outlet property="collectionView" destination="k8J-4p-mOA" id="UiV-tZ-98r"/>
+                        <outlet property="modifierButton" destination="pik-LJ-juY" id="L2E-Yx-11t"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2h6-2I-Twj" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="970" y="121"/>
+            <point key="canvasLocation" x="969.56521739130437" y="120.53571428571428"/>
         </scene>
     </scenes>
     <resources>

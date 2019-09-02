@@ -9,7 +9,7 @@
 import UIKit
 
 enum Credit: String {
-    case reddit, ninegag, memestar
+    case reddit, ninegag, instagram, memestar
 }
 
 enum MediaType: String {
@@ -26,9 +26,10 @@ class Post: NSObject {
     var isLoading: Bool = false
     var mediaType: MediaType
     var imageAspectRatio: CGFloat?
+    var imagePath: String?
     
-    init(credit: Credit, creditDescription: String, postURL: String, title: String, imageURL: String, mediaType: MediaType) {
-        self.id = UUID().uuidString
+    init(id: String, credit: Credit, creditDescription: String, postURL: String, title: String, imageURL: String, mediaType: MediaType) {
+        self.id = id
         self.creditDescription = creditDescription
         self.credit = credit
         self.postURL = postURL

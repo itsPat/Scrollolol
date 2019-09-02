@@ -20,6 +20,7 @@ class XMLManager: NSObject {
     var postURL = ""
     var title = ""
     var imageURL = ""
+    var content = ""
     
     func parse(data: Data) {
         let parser = XMLParser(data: data)
@@ -35,23 +36,33 @@ extension XMLManager: XMLParserDelegate {
             postURL = ""
             title = ""
             imageURL = ""
+            content = ""
         }
         self.elementName = elementName
     }
     
     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
-        if elementName == "entry",
-            imageURL.contains(".png") || imageURL.contains(".jpg") || imageURL.contains(".gif") {
-            let mediaTypeString = String(imageURL.suffix(3))
-            if let mediaType = MediaType(rawValue: mediaTypeString) {
-                NetworkManager.shared.fetchImageFor(post: Post(credit: .ninegag, creditDescription: "9GAG/meme", postURL: postURL, title: title.htmlDecoded, imageURL: imageURL, mediaType: mediaType)) { (result) in
-                    switch result {
-                    case .success(let post):
-                        self.delegate?.didFinishFetching9GAG(post: post)
-                    case .failure(let err):
-                        print("Did fail to create 9GAG post with XML. \n Error: \(err.localizedDescription)")
+        if elementName == "entry" {
+            do {
+                let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+                let matches = detector.matches(in: content, options: [], range: NSRange(location: 0, length: content.utf16.count))
+                for match in matches {
+                    guard let range = Range(match.range, in: content) else { continue }
+                    let url = String(content[range])
+                    if let mediaType = MediaType(rawValue: imageURL.components(separatedBy: .punctuationCharacters).last ?? "") {
+                        NetworkManager.shared.fetchImageFor(post: Post(id: postID, credit: .ninegag, creditDescription: "9GAG/meme", postURL: url, title: title.htmlDecoded, imageURL: url, mediaType: mediaType)) { (result) in
+                            switch result {
+                            case .success(let post):
+                                self.delegate?.didFinishFetching9GAG(post: post)
+                            case .failure(let err):
+                                print("Failed with error: \(err.localizedDescription)")
+                            }
+                        }
+                        break
                     }
                 }
+            } catch {
+                print("Failed with error: \(error.localizedDescription)")
             }
         }
     }
@@ -66,32 +77,7 @@ extension XMLManager: XMLParserDelegate {
             } else if self.elementName == "title" {
                 self.title += data
             } else if self.elementName == "content" {
-                print("DATA IS \(data)")
-                do {
-                    let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
-                    let matches = detector.matches(in: data, options: [], range: NSRange(location: 0, length: data.utf16.count))
-                    
-                    for match in matches {
-                        guard let range = Range(match.range, in: data) else { continue }
-                        let url = String(data[range])
-                        if imageURL.contains(".png") || imageURL.contains(".jpg") || imageURL.contains(".gif") {
-                            let mediaTypeString = String(imageURL.suffix(3))
-                            if let mediaType = MediaType(rawValue: mediaTypeString) {
-                                NetworkManager.shared.fetchImageFor(post: Post(credit: .ninegag, creditDescription: "9GAG/meme", postURL: postURL, title: title.htmlDecoded, imageURL: url, mediaType: mediaType)) { (result) in
-                                    switch result {
-                                    case .success(let post):
-                                        self.delegate?.didFinishFetching9GAG(post: post)
-                                    case .failure(let err):
-                                        print("Failed with error: \(err.localizedDescription)")
-                                    }
-                                }
-                            }
-                            break
-                        }
-                    }
-                } catch {
-                    print("Failed with error: \(error.localizedDescription)")
-                }
+                self.content += data
             }
         }
     }
