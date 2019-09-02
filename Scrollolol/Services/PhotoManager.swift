@@ -53,7 +53,7 @@ class PhotoManager: NSObject {
         }
     }
     
-    func clearAllFilesFromTempDirectory() {
+    func clearFilesOlderThan(days: Int) {
         DispatchQueue.global(qos: .background).async {
             guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
             do {
@@ -63,7 +63,7 @@ class PhotoManager: NSObject {
                     let attributes = try FileManager.default.attributesOfItem(atPath: fullPath)
                     if let creationDate = attributes[FileAttributeKey.creationDate] as? Date,
                         let difference = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day,
-                        abs(difference) >= 3 {
+                        abs(difference) >= days {
                         try FileManager.default.removeItem(atPath: fullPath)
                     }
                 }

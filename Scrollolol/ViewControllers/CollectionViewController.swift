@@ -34,7 +34,6 @@ class CollectionViewController: UIViewController {
         collectionView.register(LoadingCollectionViewCell.getNib(), forCellWithReuseIdentifier: LoadingCollectionViewCell.reuseIdentifier())
         
         fetchPosts(modifier: .hot, after: false)
-        NetworkManager.shared.fetch9GAGPosts(delegate: self)
     }
     
     func fetchPosts(modifier: SubredditModifier, after: Bool) {

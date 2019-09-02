@@ -41,7 +41,7 @@ extension XMLManager: XMLParserDelegate {
     
     func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
         if elementName == "entry",
-            imageURL.contains(".png") || imageURL.contains(".jpg") {
+            imageURL.contains(".png") || imageURL.contains(".jpg") || imageURL.contains(".gif") {
             let mediaTypeString = String(imageURL.suffix(3))
             if let mediaType = MediaType(rawValue: mediaTypeString) {
                 NetworkManager.shared.fetchImageFor(post: Post(credit: .ninegag, creditDescription: "9GAG/meme", postURL: postURL, title: title.htmlDecoded, imageURL: imageURL, mediaType: mediaType)) { (result) in
@@ -66,6 +66,7 @@ extension XMLManager: XMLParserDelegate {
             } else if self.elementName == "title" {
                 self.title += data
             } else if self.elementName == "content" {
+                print("DATA IS \(data)")
                 do {
                     let detector = try NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
                     let matches = detector.matches(in: data, options: [], range: NSRange(location: 0, length: data.utf16.count))
@@ -73,7 +74,7 @@ extension XMLManager: XMLParserDelegate {
                     for match in matches {
                         guard let range = Range(match.range, in: data) else { continue }
                         let url = String(data[range])
-                        if url.contains(".png") || url.contains(".jpg") {
+                        if imageURL.contains(".png") || imageURL.contains(".jpg") || imageURL.contains(".gif") {
                             let mediaTypeString = String(imageURL.suffix(3))
                             if let mediaType = MediaType(rawValue: mediaTypeString) {
                                 NetworkManager.shared.fetchImageFor(post: Post(credit: .ninegag, creditDescription: "9GAG/meme", postURL: postURL, title: title.htmlDecoded, imageURL: url, mediaType: mediaType)) { (result) in
