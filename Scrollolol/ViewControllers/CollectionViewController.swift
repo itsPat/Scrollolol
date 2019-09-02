@@ -1,23 +1,23 @@
 //
-//  ViewController.swift
+//  CollectionViewController.swift
 //  Scrollolol
 //
-//  Created by Patrick Trudel on 2019-08-20.
+//  Created by Patrick Trudel on 2019-09-01.
 //  Copyright © 2019 Patrick Trudel. All rights reserved.
 //
 
 import UIKit
 
-class ViewController: UIViewController {
-    
-    @IBOutlet weak var tableView: UITableView!
+class CollectionViewController: UIViewController {
+
+    @IBOutlet weak var collectionView: UICollectionView!
     let refreshControl = UIRefreshControl()
     var posts = [Post]()
     var blurView: UIVisualEffectView?
     var fullScreenImageView: UIImageView?
     var currentModifier: SubredditModifier?
     var finalPage = false
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         let button = UIButton(type: .custom)
@@ -27,10 +27,12 @@ class ViewController: UIViewController {
         navigationItem.titleView = button
         toggleOverlayView(active: true)
         refreshControl.addTarget(self, action:  #selector(handleRefresh), for: .valueChanged)
-        tableView.backgroundView = refreshControl
-        tableView.scrollsToTop = true
-        tableView.register(PostCell.getNib(), forCellReuseIdentifier: PostCell.reuseIdentifier())
-        tableView.register(LoadingCell.getNib(), forCellReuseIdentifier: LoadingCell.reuseIdentifier())
+        collectionView.backgroundView = refreshControl
+        collectionView.scrollsToTop = true
+        collectionView.insetsLayoutMarginsFromSafeArea = false
+        collectionView.register(PostCollectionViewCell.getNib(), forCellWithReuseIdentifier: PostCollectionViewCell.reuseIdentifier())
+        collectionView.register(LoadingCollectionViewCell.getNib(), forCellWithReuseIdentifier: LoadingCollectionViewCell.reuseIdentifier())
+        
         fetchPosts(modifier: .hot, after: false)
         NetworkManager.shared.fetch9GAGPosts(delegate: self)
     }
@@ -43,13 +45,13 @@ class ViewController: UIViewController {
     // MARK: Actions
     @objc func handleRefresh() {
         fetchPosts(modifier: currentModifier ?? .hot, after: false)
-        tableView.reloadData()
+        collectionView.reloadData()
         refreshControl.endRefreshing()
     }
     
     @objc func didTapStar(_ sender: UIButton) {
         navigationController?.setNavigationBarHidden(false, animated: true)
-        tableView.scrollToRow(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
+        collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: true)
     }
     
     @IBAction func didTapMenu(_ sender: UIBarButtonItem) {
@@ -126,91 +128,70 @@ class ViewController: UIViewController {
     }
     
     func openImageInFullScreen(indexPath: IndexPath) {
-        
-        guard let cell = tableView.cellForRow(at: indexPath) as? PostCell else { return }
-        let post = posts[indexPath.section]
-        
-        guard let image = PhotoManager.shared.loadMediaFor(post: post) else { return }
+        guard let cell = collectionView.cellForItem(at: indexPath) as? PostCollectionViewCell else { return }
+        guard let image = cell.postImageView.image else { return }
         
         if !UIAccessibility.isReduceTransparencyEnabled {
             let blurEffect = UIBlurEffect(style: .dark)
-            blurView = UIVisualEffectView(effect: blurEffect)
-            guard let blurView = blurView else { return }
+            self.blurView = UIVisualEffectView(effect: blurEffect)
+            guard let blurView = self.blurView else { return }
             blurView.frame = self.view.bounds
             blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             blurView.alpha = 0.0
-            view.addSubview(blurView)
+            self.view.addSubview(blurView)
+            
+            
             
             UIView.animate(withDuration: 0.1, delay: 0.0, options: .curveEaseInOut, animations: {
                 blurView.alpha = 1.0
             }, completion: nil)
         }
         
-        let rectOfCell = tableView.rectForRow(at: indexPath)
-        let rectOfCellInSuperview = tableView.convert(rectOfCell, to: tableView.superview)
+        let rectOfCellInSuperview = self.collectionView.convert(cell.frame, to: self.collectionView.superview)
         let convertedImageViewRect = CGRect(x: rectOfCellInSuperview.origin.x + cell.postImageView.frame.origin.x, y: rectOfCellInSuperview.origin.y + cell.postImageView.frame.origin.y, width: cell.postImageView.frame.width, height: cell.postImageView.frame.height)
         
-        fullScreenImageView = UIImageView(frame: convertedImageViewRect)
-        fullScreenImageView?.contentMode = .scaleAspectFit
-        fullScreenImageView?.backgroundColor = UIAccessibility.isReduceTransparencyEnabled ? .black : .clear
-        fullScreenImageView?.image = image
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        fullScreenImageView?.addGestureRecognizer(panGesture)
-        fullScreenImageView?.isUserInteractionEnabled = true
-        guard let fullScreenImageView = fullScreenImageView else { return }
-        view.addSubview(fullScreenImageView)
-        
-        UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveEaseInOut, animations: {
-            self.navigationController?.setNavigationBarHidden(true, animated: true)
-            self.fullScreenImageView?.frame = self.view.frame.inset(by: self.view.safeAreaInsets)
-        }) { (_) in
-            self.fullScreenImageView?.translatesAutoresizingMaskIntoConstraints = false
-            self.fullScreenImageView?.constrainToEdgesOf(superview: self.view, padding: self.view.safeAreaInsets)
+        self.fullScreenImageView = UIImageView(frame: convertedImageViewRect)
+        self.fullScreenImageView?.contentMode = .scaleAspectFit
+        self.fullScreenImageView?.backgroundColor = UIAccessibility.isReduceTransparencyEnabled ? .black : .clear
+        self.fullScreenImageView?.image = image
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(self.handlePan(_:)))
+        self.fullScreenImageView?.addGestureRecognizer(panGesture)
+        self.fullScreenImageView?.isUserInteractionEnabled = true
+        guard let fullScreenImageView = self.fullScreenImageView else { return }
+        DispatchQueue.main.async {
+            self.view.addSubview(fullScreenImageView)
+            UIView.animate(withDuration: 0.2, delay: 0.0, options: .curveEaseInOut, animations: {
+                self.navigationController?.setNavigationBarHidden(true, animated: true)
+                self.fullScreenImageView?.frame = self.view.frame.inset(by: self.view.safeAreaInsets)
+            }) { (_) in
+                self.fullScreenImageView?.translatesAutoresizingMaskIntoConstraints = false
+                self.fullScreenImageView?.constrainToEdgesOf(superview: self.view, padding: self.view.safeAreaInsets)
+            }
         }
     }
     
+    
+
 }
 
-extension ViewController: UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
+extension CollectionViewController: UICollectionViewDataSource {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return posts.count + (finalPage ? 0 : 1)
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard !posts.isEmpty else { return 100.0 }
-        guard indexPath.section != posts.count else { return 100.0 }
-        guard let ratio = posts[indexPath.section].getImageAspectRatio() else { return 100.0 }
-        return (view.frame.width / ratio) + 108.25
-    }
-    
-    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard !posts.isEmpty else { return 100.0 }
-        guard indexPath.section != posts.count else { return 100.0 }
-        guard let ratio = posts[indexPath.section].getImageAspectRatio() else { return 100.0 }
-        return (view.frame.width / ratio) + 108.25
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let clearCell = UITableViewCell(style: .default, reuseIdentifier: nil)
-        clearCell.backgroundColor = UIColor.clear
-        clearCell.contentView.backgroundColor = UIColor.clear
-        guard !posts.isEmpty else { return clearCell }
-        if indexPath.section == posts.count, !finalPage {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if indexPath.item == posts.count && !finalPage || posts.isEmpty {
             // Present Loading Cell until new posts are downloaded.
             fetchPosts(modifier: currentModifier ?? .hot, after: true)
-            let cell = tableView.dequeueReusableCell(withIdentifier: LoadingCell.reuseIdentifier()) as! LoadingCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: LoadingCollectionViewCell.reuseIdentifier(), for: indexPath) as! LoadingCollectionViewCell
             return cell
         } else {
             // Present Post Cell once the image is available.
-            let post = posts[indexPath.section]
-            let cell = tableView.dequeueReusableCell(withIdentifier: PostCell.reuseIdentifier()) as! PostCell
-            cell.post = post
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PostCollectionViewCell.reuseIdentifier(), for: indexPath) as! PostCollectionViewCell
+            let post = posts[indexPath.item]
+            cell.updateCell(post: post)
             cell.delegate = self
-            cell.updateCell()
             cell.layoutIfNeeded()
             return cell
         }
@@ -220,24 +201,45 @@ extension ViewController: UITableViewDataSource {
         DispatchQueue.main.async {
             self.toggleOverlayView(active: false)
             self.posts.append(post)
-            self.tableView.insertSections(IndexSet(integer: self.posts.count - 1), with: .none) 
+            self.collectionView.insertItems(at: [IndexPath(item: self.posts.count - 1, section: 0)])
         }
     }
+    
 }
 
-extension ViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+extension CollectionViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
         openImageInFullScreen(indexPath: indexPath)
     }
 }
 
-extension ViewController: NetworkManagerDelegate {
+extension CollectionViewController: UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        return UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let loadingCellSize = CGSize(width: view.frame.width, height: 140)
+        guard !posts.isEmpty else { return loadingCellSize }
+        guard indexPath.item != posts.count else { return loadingCellSize }
+        guard let ratio = posts[indexPath.item].imageAspectRatio else { return .zero }
+        let numberOfCellsHorizontally: CGFloat = UIDevice().userInterfaceIdiom == .pad ? 3 : 1
+        let spacing = numberOfCellsHorizontally * 8.0 * (numberOfCellsHorizontally + 1)
+        let width = (view.frame.inset(by: view.safeAreaInsets).width - spacing) / numberOfCellsHorizontally
+        let height = (width / ratio) + 108.25
+        return CGSize(width: width, height: height)
+    }
+}
+
+
+extension CollectionViewController: NetworkManagerDelegate {
     func fetchRedditPostDidFail() {
         print("❌REDDIT POST FAILED❌")
         DispatchQueue.main.async {
             self.finalPage = true
-            self.tableView.reloadData()
+            self.collectionView.reloadData()
         }
     }
     
@@ -246,7 +248,7 @@ extension ViewController: NetworkManagerDelegate {
     }
 }
 
-extension ViewController: XMLManagerDelegate {
+extension CollectionViewController: XMLManagerDelegate {
     func didFinishFetching9GAG(post: Post) {
         insertPost(post: post)
     }
@@ -254,5 +256,6 @@ extension ViewController: XMLManagerDelegate {
 
 
 
-extension ViewController: PostCellDelegate { }
+extension CollectionViewController: PostCellDelegate { }
+
 

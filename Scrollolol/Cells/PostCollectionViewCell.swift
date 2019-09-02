@@ -1,8 +1,8 @@
 //
-//  PostCell.swift
+//  PostCollectionViewCell.swift
 //  Scrollolol
 //
-//  Created by Patrick Trudel on 2019-08-20.
+//  Created by Patrick Trudel on 2019-09-01.
 //  Copyright © 2019 Patrick Trudel. All rights reserved.
 //
 
@@ -10,10 +10,8 @@ import UIKit
 
 protocol PostCellDelegate: UIViewController { }
 
-
-class PostCell: UITableViewCell {
-
-    @IBOutlet weak var titleStackViewHeightConstraint: NSLayoutConstraint!
+class PostCollectionViewCell: UICollectionViewCell {
+    
     @IBOutlet weak var sourceButton: UIButton!
     @IBOutlet weak var postTitle: UILabel!
     @IBOutlet weak var postCreditDescription: UILabel!
@@ -21,12 +19,13 @@ class PostCell: UITableViewCell {
     var post: Post?
     var delegate: PostCellDelegate?
     
+    
     class func getNib() -> UINib {
-        return UINib(nibName: "PostCell", bundle: Bundle.main)
+        return UINib(nibName: "PostCollectionViewCell", bundle: Bundle.main)
     }
     
     class func reuseIdentifier() -> String {
-        return "PostCell"
+        return "PostCollectionViewCell"
     }
     
     override func prepareForReuse() {
@@ -35,14 +34,14 @@ class PostCell: UITableViewCell {
         postImageView.image = nil
     }
     
-    func updateCell() {
-        guard let post = post else { return }
+    func updateCell(post: Post) {
+        self.post = post
+        guard let post = self.post else { return }
         sourceButton.setImage(post.credit == .reddit ? #imageLiteral(resourceName: "reddit") : #imageLiteral(resourceName: "9gag"), for: .normal)
         postTitle.text = post.title
         postCreditDescription.text = post.creditDescription
-        
-        DispatchQueue.global(qos: .background).async {
-            if let image = PhotoManager.shared.loadMediaFor(post: post) {
+        PhotoManager.shared.loadMediaFor(post: post) { (image) in
+            if let image = image {
                 DispatchQueue.main.async {
                     self.postImageView.image = image
                 }
@@ -56,7 +55,7 @@ class PostCell: UITableViewCell {
     }
     
     @IBAction func didTapStar(_ sender: Any) {
-    
+        
     }
     
     @IBAction func didTapSave(_ sender: Any) {
@@ -64,13 +63,12 @@ class PostCell: UITableViewCell {
     }
     
     @IBAction func didTapShare(_ sender: Any) {
+        guard let image = postImageView.image else { return }
+        let activityItems: [Any] = [image, "Check out this post I found on Meme Monkey!"]
+        let avc = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         DispatchQueue.main.async {
-            guard let post = self.post else { return }
-            guard let image = PhotoManager.shared.loadMediaFor(post: post) else { return }
-            let activityItems: [Any] = [image, "Check out this post I found on Meme Monkey!"]
-            let avc = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
             self.delegate?.present(avc, animated: true, completion: nil)
         }
     }
-    
+
 }

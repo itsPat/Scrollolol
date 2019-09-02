@@ -25,6 +25,7 @@ class Post: NSObject {
     let imageURL: String
     var isLoading: Bool = false
     var mediaType: MediaType
+    var imageAspectRatio: CGFloat?
     
     init(credit: Credit, creditDescription: String, postURL: String, title: String, imageURL: String, mediaType: MediaType) {
         self.id = UUID().uuidString
@@ -34,13 +35,6 @@ class Post: NSObject {
         self.title = title
         self.imageURL = imageURL
         self.mediaType = mediaType
-    }
-    
-    func getImageAspectRatio() -> CGFloat? {
-        if let image = PhotoManager.shared.loadMediaFor(post: self) {
-            return image.size.width / image.size.height
-        }
-        return nil
     }
     
 }

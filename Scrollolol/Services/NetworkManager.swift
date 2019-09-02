@@ -109,8 +109,11 @@ class NetworkManager: NSObject {
                     if let location = location {
                         do {
                             let data = try Data(contentsOf: location)
-                            PhotoManager.shared.saveMediaFor(post: post, data: data)
-                            completion(.success(post))
+                            if let media = UIImage(data: data) {
+                                post.imageAspectRatio = media.size.width / media.size.height
+                                PhotoManager.shared.saveMediaFor(post: post, data: data)
+                                completion(.success(post))
+                            }
                         } catch {
                             completion(.failure(error))
                         }

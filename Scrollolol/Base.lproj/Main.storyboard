@@ -10,61 +10,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Home-->
-        <scene sceneID="tne-QT-ifu">
-            <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Scrollolol" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="sqJ-qA-NBZ">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
-                                <color key="backgroundColor" white="0.10000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="boolean" keyPath="scrollsToTop" value="YES"/>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="7ES-aX-SL2"/>
-                                    <outlet property="delegate" destination="BYZ-38-t0r" id="nAp-tK-260"/>
-                                </connections>
-                            </tableView>
-                        </subviews>
-                        <color key="backgroundColor" white="0.10000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <color key="tintColor" red="0.92941176469999998" green="0.45882352939999999" blue="0.2784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <constraints>
-                            <constraint firstAttribute="bottom" secondItem="sqJ-qA-NBZ" secondAttribute="bottom" id="IGi-QP-ApC"/>
-                            <constraint firstItem="sqJ-qA-NBZ" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Mz4-eX-sKJ"/>
-                            <constraint firstItem="sqJ-qA-NBZ" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="qSV-HJ-7WJ"/>
-                            <constraint firstItem="sqJ-qA-NBZ" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="zDp-yT-S4l"/>
-                        </constraints>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                    </view>
-                    <navigationItem key="navigationItem" title="Home" id="Iwu-xM-3Fb">
-                        <barButtonItem key="leftBarButtonItem" title="Subreddit" image="menu" style="done" id="Uva-wM-KHm" userLabel="Menu">
-                            <connections>
-                                <action selector="didTapMenu:" destination="BYZ-38-t0r" id="26y-GV-uqH"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" title="Modifier" image="filter" style="done" id="gCd-BC-4Su">
-                            <connections>
-                                <action selector="didTapFetch:" destination="BYZ-38-t0r" id="Xuz-iT-2uS"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <connections>
-                        <outlet property="tableView" destination="sqJ-qA-NBZ" id="IVL-D9-AiP"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1047.8260869565217" y="120.53571428571428"/>
-        </scene>
         <!--Navigation Controller-->
         <scene sceneID="Ntn-qR-Zli">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" hidesBarsOnSwipe="YES" id="C8u-EL-KnU" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="C8u-EL-KnU" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" barStyle="black" translucent="NO" id="q2e-yu-DiE">
                         <rect key="frame" x="0.0" y="44" width="414" height="44"/>
@@ -76,12 +25,66 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </toolbar>
                     <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="tnk-VP-V8m"/>
+                        <segue destination="FKq-yQ-Ull" kind="relationship" relationship="rootViewController" id="6kU-cg-Xkg"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9fL-PA-mEP" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="162" y="121"/>
+        </scene>
+        <!--Home-->
+        <scene sceneID="8LB-g0-cm4">
+            <objects>
+                <viewController id="FKq-yQ-Ull" customClass="CollectionViewController" customModule="Scrollolol" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="4vH-f2-Hwf">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" prefetchingEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="k8J-4p-mOA">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="808"/>
+                                <color key="backgroundColor" white="0.10000000000000001" alpha="1" colorSpace="calibratedWhite"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="8" minimumInteritemSpacing="8" id="rBu-xx-gZm">
+                                    <size key="itemSize" width="414" height="160"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells/>
+                                <connections>
+                                    <outlet property="dataSource" destination="FKq-yQ-Ull" id="NTO-Qn-KC5"/>
+                                    <outlet property="delegate" destination="FKq-yQ-Ull" id="0Ld-Xg-Viy"/>
+                                </connections>
+                            </collectionView>
+                        </subviews>
+                        <color key="backgroundColor" white="0.10000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="tintColor" red="0.92941176469999998" green="0.45882352939999999" blue="0.2784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="k8J-4p-mOA" firstAttribute="top" secondItem="meJ-vZ-FUD" secondAttribute="top" id="8ef-vv-jVo"/>
+                            <constraint firstAttribute="bottom" secondItem="k8J-4p-mOA" secondAttribute="bottom" id="iFW-Qi-LV1"/>
+                            <constraint firstItem="k8J-4p-mOA" firstAttribute="trailing" secondItem="meJ-vZ-FUD" secondAttribute="trailing" id="qFg-Cp-52Y"/>
+                            <constraint firstItem="k8J-4p-mOA" firstAttribute="leading" secondItem="meJ-vZ-FUD" secondAttribute="leading" id="tEQ-uY-so4"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="meJ-vZ-FUD"/>
+                    </view>
+                    <navigationItem key="navigationItem" title="Home" id="Tqy-SL-Act">
+                        <barButtonItem key="leftBarButtonItem" title="Subreddit" image="menu" style="done" id="EMi-6b-eMa" userLabel="Menu">
+                            <connections>
+                                <action selector="didTapMenu:" destination="FKq-yQ-Ull" id="zcb-rC-06a"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="Modifier" image="filter" style="done" id="6R7-Fj-aos">
+                            <connections>
+                                <action selector="didTapFetch:" destination="FKq-yQ-Ull" id="Peg-N8-34b"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="collectionView" destination="k8J-4p-mOA" id="UiV-tZ-98r"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="2h6-2I-Twj" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="970" y="121"/>
         </scene>
     </scenes>
     <resources>

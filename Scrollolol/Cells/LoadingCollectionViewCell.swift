@@ -1,26 +1,26 @@
 //
-//  PostCell.swift
+//  LoadingCollectionViewCell.swift
 //  Scrollolol
 //
-//  Created by Patrick Trudel on 2019-08-20.
+//  Created by Patrick Trudel on 2019-09-01.
 //  Copyright © 2019 Patrick Trudel. All rights reserved.
 //
 
 import UIKit
 import Lottie
 
-class LoadingCell: UITableViewCell {
+class LoadingCollectionViewCell: UICollectionViewCell {
 
     @IBOutlet weak var insetContentView: UIView!
     let lottieView = AnimationView(name: "loading")
     
     
     class func getNib() -> UINib {
-        return UINib(nibName: "LoadingCell", bundle: Bundle.main)
+        return UINib(nibName: "LoadingCollectionViewCell", bundle: Bundle.main)
     }
     
     class func reuseIdentifier() -> String {
-        return "LoadingCell"
+        return "LoadingCollectionViewCell"
     }
     
     override func awakeFromNib() {
@@ -40,6 +40,5 @@ class LoadingCell: UITableViewCell {
         lottieView.constrainToEdgesOf(superview: insetContentView, padding: UIEdgeInsets(top: 20.0, left: 20.0, bottom: 20.0, right: 20.0))
         lottieView.play()
     }
-    
 
 }

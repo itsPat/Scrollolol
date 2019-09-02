@@ -34,6 +34,7 @@ extension UIView {
         layer.shadowOpacity = 0.3
         layer.masksToBounds = false
     }
+    
 }
 
 extension String {
@@ -59,12 +60,15 @@ extension CGPoint {
 
 extension UIImage {
     
-    public class func gifImageWithData(_ data: Data) -> UIImage? {
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
-            print("image doesn't exist")
-            return nil
+    public class func gifImageWithData(_ data: Data, completion: @escaping (UIImage?) -> ()) {
+        DispatchQueue.global(qos: .background).async {
+            guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+                print("image doesn't exist")
+                completion(nil)
+                return
+            }
+            completion(UIImage.animatedImageWithSource(source))
         }
-        return UIImage.animatedImageWithSource(source)
     }
     
     class func delayForImageAtIndex(_ index: Int, source: CGImageSource!) -> Double {
