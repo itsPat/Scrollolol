@@ -13,7 +13,11 @@ enum Subreddit: String, CaseIterable {
 }
 
 enum SubredditModifier: String, CaseIterable {
-    case best, hot, top, rising, new, random
+    case best, hot, new
+}
+
+enum RSSFeeds: String, CaseIterable {
+    case twitter, imgur, facebook
 }
 
 enum Instagram: String, CaseIterable {
@@ -21,6 +25,10 @@ enum Instagram: String, CaseIterable {
     case funnymemes = "2955360060"
     case memes = "300712527"
     case beigecardigan = "32458049"
+    case daquan = "1419706373"
+    case thefatjewish = "234045951"
+    case greatercomedy = "863021836"
+    case shitheadsteve = "1364166629"
     
     func accountName() -> String {
         switch self {
@@ -32,6 +40,14 @@ enum Instagram: String, CaseIterable {
             return "@memes"
         case .beigecardigan:
             return "@beigecardigan"
+        case .daquan:
+            return "@daquan"
+        case .thefatjewish:
+            return "@thefatjewish"
+        case .shitheadsteve:
+            return "@greatercomedy"
+        case .greatercomedy:
+            return "@shitheadsteve"
         }
     }
 }
@@ -49,8 +65,18 @@ class NetworkManager: NSObject {
     var delegate: NetworkManagerDelegate?
     var redditAfterIDs = [String:String]()
     var instagramAfterIDs = [String:String]()
+    var accumulatedPosts = [Post]()
     
-    
+    // Necessary for RSS feeds that dump the entire feed at once rather than using pagination.
+    func fetchAccumulatedPosts(count: Int) {
+        accumulatedPosts.shuffle()
+        for _ in 0..<count {
+            if accumulatedPosts.count > 0 {
+                let firstPost = accumulatedPosts.removeFirst()
+                delegate?.didFinishFetching(post: firstPost)
+            }
+        }
+    }
     
     func fetchRedditPosts(modifier: SubredditModifier, after: Bool) {
         
@@ -115,7 +141,7 @@ class NetworkManager: NSObject {
             instagramAfterIDs.removeAll()
         }
         for instagram in Instagram.allCases {
-            let urlString = "https://www.instagram.com/graphql/query/?query_hash=472f257a40c653c64c666ce877d59d2b&variables={\"id\":\"\(instagram.rawValue)\",\"first\":3,\"after\":\"\(self.instagramAfterIDs[instagram.rawValue] ?? "")\"}"
+            let urlString = "https://www.instagram.com/graphql/query/?query_hash=472f257a40c653c64c666ce877d59d2b&variables={\"id\":\"\(instagram.rawValue)\",\"first\":1,\"after\":\"\(self.instagramAfterIDs[instagram.rawValue] ?? "")\"}"
             
             guard let url = URL(string: urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "") else { return }
             
@@ -178,9 +204,84 @@ class NetworkManager: NSObject {
         }
     }
     
-    func fetch9GAGPosts(delegate: XMLManagerDelegate) {
+    
+    
+    func fetchPosts(rss: RSSFeeds) {
+        
+        var urlString = ""
+        
+        switch rss {
+        case .imgur:
+            urlString = "https://rss.app/feeds/9nrIoqQlDhR9w7Cp.xml"
+        case .twitter:
+            let urls = [
+                "https://rss.app/feeds/wpXGqUUCZC7SqTB9.json",
+                "https://rss.app/feeds/p6wx8cLGPyB9C8RH.json"
+            ]
+            if let url = urls.randomElement() {
+                urlString = url
+            }
+        case .facebook:
+            urlString = "https://rss.app/feeds/akfmmSIGaCLhzBEG.json"
+        }
+        
+        guard let url = URL(string: urlString) else { return }
+        
+        print("✅FETCHING NEW DATA WITH URL: \(url.absoluteString)✅")
+        
+        let task = URLSession.shared.dataTask(with: url) { (data, res, err) in
+            if let err = err {
+                self.delegate?.fetchPostDidFail()
+                print("Failed to get data from \(url) with error: \(err)")
+            }
+            
+            guard let data = data else { return }
+            guard let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String:Any] else { return }
+            guard let postsJSON = json["items"] as? [[String:Any]] else { return }
+            
+            
+            for postJSON in postsJSON {
+                guard let credit = Credit(rawValue: rss.rawValue) else { continue}
+                guard let title = postJSON["title"] as? String else { continue }
+                guard let postURL = postJSON["url"] as? String else { continue }
+                guard let enclosure = postJSON["enclosure"] as? [String:Any] else { continue }
+                guard let imageURL = enclosure["url"] as? String else { continue }
+                
+                let components = postURL.components(separatedBy: "/")
+                guard let id = components.last else { continue }
+                
+                var mediaType: MediaType? = nil
+                
+                if imageURL.contains(".jpg") {
+                    mediaType = .jpg
+                } else if imageURL.contains(".png") {
+                    mediaType = .png
+                } else if imageURL.contains(".gif") {
+                    mediaType = .gif
+                }
+                
+                if let mediaType = mediaType {
+                    let post = Post(id: id, credit: credit, creditDescription: "\(rss.rawValue)/memes", postURL: postURL, title: title, imageURL: imageURL, mediaType: mediaType)
+                    self.fetchImageFor(post: post, completion: { (result) in
+                        switch result {
+                        case .success(let post):
+                            self.accumulatedPosts.append(post)
+                        case .failure(let err):
+                            self.delegate?.fetchPostDidFail()
+                            print("Did fail to fetch image with \(err.localizedDescription)")
+                        }
+                    })
+                }
+            }
+        }
+        task.resume()
+        
+    }
+    
+    func fetch9GAGPosts() {
         let paths = [
-            "https://www.9gag-rss-feed.ovh/rss/9GAG_Meme_-_Hot.atom"
+            "https://www.9gag-rss-feed.ovh/rss/9GAG_Meme_-_Hot.atom",
+            "https://www.9gag-rss-feed.ovh/rss/9GAG_Funny_-_Hot.atom"
         ]
         
         for path in paths {
@@ -191,7 +292,7 @@ class NetworkManager: NSObject {
                 }
                 guard let data = data else { return }
                 XMLManager.shared.parse(data: data)
-                XMLManager.shared.delegate = delegate
+                XMLManager.shared.delegate = self
             }
             task.resume()
         }
@@ -210,9 +311,8 @@ class NetworkManager: NSObject {
                 if let location = location {
                     do {
                         let data = try Data(contentsOf: location)
-                        if let media = UIImage(data: data) {
+                        if let media = UIImage(data: data), media.size.width > 400 {
                             post.imageAspectRatio = media.size.width / media.size.height
-                            print("MEDIA SIZE: W: \(media.size.width), H: \(media.size.height)")
                             PhotoManager.shared.saveMediaFor(post: post, data: data, completion: { (result) in
                                 switch result {
                                 case .success(let imageURL):
@@ -235,6 +335,12 @@ class NetworkManager: NSObject {
     
     
     
+}
+
+extension NetworkManager: XMLManagerDelegate {
+    func didFinishFetching9GAG(post: Post) {
+        accumulatedPosts.append(post)
+    }
 }
 
 

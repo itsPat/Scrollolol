@@ -19,10 +19,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="star-2" translatesAutoresizingMaskIntoConstraints="NO" id="IEh-0e-beU">
-                                <rect key="frame" x="143" y="384" width="128" height="128"/>
+                                <rect key="frame" x="175" y="416" width="64" height="64"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="128" id="6U4-Bg-AdK"/>
-                                    <constraint firstAttribute="width" constant="128" id="Mo6-IR-bzS"/>
+                                    <constraint firstAttribute="height" constant="64" id="6U4-Bg-AdK"/>
+                                    <constraint firstAttribute="width" constant="64" id="Mo6-IR-bzS"/>
                                     <constraint firstAttribute="width" secondItem="IEh-0e-beU" secondAttribute="height" multiplier="1:1" id="e7h-yU-055"/>
                                 </constraints>
                             </imageView>

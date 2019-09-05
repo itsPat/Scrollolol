@@ -44,6 +44,12 @@ class PostCollectionViewCell: UICollectionViewCell {
             sourceButton.setImage(#imageLiteral(resourceName: "reddit"), for: .normal)
         case .ninegag:
             sourceButton.setImage(#imageLiteral(resourceName: "9gag"), for: .normal)
+        case .twitter:
+            sourceButton.setImage(#imageLiteral(resourceName: "twitter"), for: .normal)
+        case .facebook:
+            sourceButton.setImage(#imageLiteral(resourceName: "f_logo_RGB-Hex-Blue_512"), for: .normal)
+        case .imgur:
+            sourceButton.setImage(#imageLiteral(resourceName: "imgur"), for: .normal)
         default:
             break
         }
@@ -73,7 +79,7 @@ class PostCollectionViewCell: UICollectionViewCell {
     
     @IBAction func didTapShare(_ sender: Any) {
         guard let image = postImageView.image else { return }
-        let activityItems: [Any] = [image, "Sent via ⭐️ Meme Star ⭐️"]
+        let activityItems: [Any] = [image, "Shared via ⭐️ Meme Star ⭐️"]
         let avc = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         DispatchQueue.main.async {
             self.delegate?.present(avc, animated: true, completion: nil)

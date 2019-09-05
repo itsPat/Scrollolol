@@ -27,20 +27,25 @@ class CollectionViewController: UIViewController {
         collectionView.backgroundView = refreshControl
         collectionView.register(PostCollectionViewCell.getNib(), forCellWithReuseIdentifier: PostCollectionViewCell.reuseIdentifier())
         collectionView.register(LoadingCollectionViewCell.getNib(), forCellWithReuseIdentifier: LoadingCollectionViewCell.reuseIdentifier())
-        fetchPosts(modifier: .hot, after: false)
+        fetchPosts(modifier: .best, after: false)
     }
     
     func fetchPosts(modifier: SubredditModifier, after: Bool) {
         NetworkManager.shared.delegate = self
-        NetworkManager.shared.fetchInstagramPosts(after: after)
+        if after {
+            NetworkManager.shared.fetchAccumulatedPosts(count: 4)
+        } else {
+            NetworkManager.shared.fetchPosts(rss: .twitter)
+            NetworkManager.shared.fetchPosts(rss: .facebook)
+            NetworkManager.shared.fetchPosts(rss: .imgur)
+            NetworkManager.shared.fetch9GAGPosts()
+        }
         NetworkManager.shared.fetchRedditPosts(modifier: modifier, after: after)
-//        NetworkManager.shared.fetch9GAGPosts(delegate: self)
+        NetworkManager.shared.fetchInstagramPosts(after: after)
     }
     
     // MARK: Actions
     @objc func handleRefresh() {
-//        fetchPosts(modifier: currentModifier ?? .hot, after: false)
-//        collectionView.reloadData()
         refreshControl.endRefreshing()
     }
     
@@ -183,7 +188,7 @@ extension CollectionViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if indexPath.item == posts.count && !finalPage || posts.isEmpty {
             // Present Loading Cell until new posts are downloaded.
-            fetchPosts(modifier: currentModifier ?? .hot, after: true)
+            fetchPosts(modifier: currentModifier ?? .best, after: true)
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: LoadingCollectionViewCell.reuseIdentifier(), for: indexPath) as! LoadingCollectionViewCell
             return cell
         } else {
@@ -252,14 +257,6 @@ extension CollectionViewController: NetworkManagerDelegate {
         insertPost(post: post)
     }
 }
-
-extension CollectionViewController: XMLManagerDelegate {
-    func didFinishFetching9GAG(post: Post) {
-        insertPost(post: post)
-    }
-}
-
-
 
 extension CollectionViewController: PostCellDelegate { }
 

@@ -9,7 +9,7 @@
 import UIKit
 
 enum Credit: String {
-    case reddit, ninegag, instagram, memestar
+    case reddit, ninegag, instagram, twitter, facebook, imgur, memestar
 }
 
 enum MediaType: String {

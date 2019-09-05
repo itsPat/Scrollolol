@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		78157260231C7DF6003F2889 /* CollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7815725F231C7DF6003F2889 /* CollectionViewController.swift */; };
+		781850DE23208E2900F84410 /* loading.json in Resources */ = {isa = PBXBuildFile; fileRef = 781850DD23208E2900F84410 /* loading.json */; };
 		78336CA52312F15900E134E7 /* OverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78336CA42312F15900E134E7 /* OverlayView.swift */; };
 		783C8065231CA3400005311F /* LoadingCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 783C8063231CA3400005311F /* LoadingCollectionViewCell.swift */; };
 		783C8066231CA3400005311F /* LoadingCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 783C8064231CA3400005311F /* LoadingCollectionViewCell.xib */; };
@@ -23,7 +24,6 @@
 		78E4FC41230CC4E30077DDEA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 78E4FC3F230CC4E30077DDEA /* LaunchScreen.storyboard */; };
 		78E4FC4B230CC6950077DDEA /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78E4FC4A230CC6950077DDEA /* NetworkManager.swift */; };
 		78FF83E5231183E0004854F4 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78FF83E4231183E0004854F4 /* Extensions.swift */; };
-		78FF83ED23119E9D004854F4 /* loading.json in Resources */ = {isa = PBXBuildFile; fileRef = 78FF83EC23119E9D004854F4 /* loading.json */; };
 		9BC6EC894E1D0CC9D1B2438F /* Pods_Scrollolol.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BFDD4831E556F91C1729146 /* Pods_Scrollolol.framework */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +31,7 @@
 		0734D66DAFA889E72E3810CA /* Pods-Scrollolol.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scrollolol.release.xcconfig"; path = "Target Support Files/Pods-Scrollolol/Pods-Scrollolol.release.xcconfig"; sourceTree = "<group>"; };
 		6ABF19F9C37FF5EA0E8E40C2 /* Pods-Scrollolol.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Scrollolol.debug.xcconfig"; path = "Target Support Files/Pods-Scrollolol/Pods-Scrollolol.debug.xcconfig"; sourceTree = "<group>"; };
 		7815725F231C7DF6003F2889 /* CollectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionViewController.swift; sourceTree = "<group>"; };
+		781850DD23208E2900F84410 /* loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = loading.json; sourceTree = "<group>"; };
 		78336CA42312F15900E134E7 /* OverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayView.swift; sourceTree = "<group>"; };
 		783C8063231CA3400005311F /* LoadingCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingCollectionViewCell.swift; sourceTree = "<group>"; };
 		783C8064231CA3400005311F /* LoadingCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoadingCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -48,7 +49,6 @@
 		78E4FC42230CC4E30077DDEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		78E4FC4A230CC6950077DDEA /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		78FF83E4231183E0004854F4 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		78FF83EC23119E9D004854F4 /* loading.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = loading.json; sourceTree = "<group>"; };
 		8BFDD4831E556F91C1729146 /* Pods_Scrollolol.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Scrollolol.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -146,7 +146,7 @@
 		78FF83EE23119EA3004854F4 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
-				78FF83EC23119E9D004854F4 /* loading.json */,
+				781850DD23208E2900F84410 /* loading.json */,
 				78D06A18231C948F0063DC80 /* PostCollectionViewCell.swift */,
 				78D06A19231C948F0063DC80 /* PostCollectionViewCell.xib */,
 				783C8063231CA3400005311F /* LoadingCollectionViewCell.swift */,
@@ -236,7 +236,7 @@
 				78D06A1B231C948F0063DC80 /* PostCollectionViewCell.xib in Resources */,
 				78E4FC41230CC4E30077DDEA /* LaunchScreen.storyboard in Resources */,
 				78E4FC3E230CC4E30077DDEA /* Assets.xcassets in Resources */,
-				78FF83ED23119E9D004854F4 /* loading.json in Resources */,
+				781850DE23208E2900F84410 /* loading.json in Resources */,
 				787833AE23122BD700F8C894 /* OverlayView.xib in Resources */,
 				78E4FC3C230CC4E20077DDEA /* Main.storyboard in Resources */,
 			);

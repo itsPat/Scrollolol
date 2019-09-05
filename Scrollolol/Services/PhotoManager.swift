@@ -73,8 +73,12 @@ class PhotoManager: NSObject {
                         let difference = Calendar.current.dateComponents([.day], from: creationDate, to: Date()).day,
                         abs(difference) >= days {
                         try FileManager.default.removeItem(atPath: fullPath)
+                    } else {
+                        print("File is younger than \(days) days.")
                     }
                 }
+                
+                
             } catch {
                 print("ERROR clearAllFilesFromTempDirectory() : \(error)")
             }
