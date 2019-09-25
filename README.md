@@ -1,3 +1,3 @@
 # Scrollolol
 
-![alt text](https://raw.githubusercontent.com/taptrudev/Scrollolol/IMG_1164.PNG)
+![alt text](https://github.com/taptrudev/Scrollolol/blob/master/IMG_1164.PNG?raw=true)
